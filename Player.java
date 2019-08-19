@@ -1,5 +1,7 @@
 import java.util.*;
 
+import javax.swing.ImageIcon;
+
 public class Player {
 	private String name;
 	private String characterName;
@@ -7,21 +9,23 @@ public class Player {
 	private Cell location;
 	private boolean dead;
 	private String prevRoundRoom;
-	
-	public Player (String player, Cell location, String character) {
+	private ImageIcon image;
+
+	public Player (String player, Cell location, String character, ImageIcon image) {
 		this.name = player;
 		this.characterName = character;
 		this.hand = new ArrayList<Card>();
 		this.dead = false;
 		this.location = location;
 		this.prevRoundRoom = location.getRoom();
+		this.image = image;
 	}
 
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * returns the characterName of this player
 	 * @return
@@ -45,14 +49,14 @@ public class Player {
 	public void addCardToHand(Card card) {
 		this.hand.add(card);
 	}
-	
+
 	/**
 	 * sets the current location of the player
 	 */
 	public void setLocation(Cell loc) {
 		this.location = loc;
 	}
-	
+
 	/**
 	 * returns the current location of the player
 	 * @return the current location of this player
@@ -60,7 +64,7 @@ public class Player {
 	public Cell getLocation() {
 		return location;
 	}
-	
+
 	/**
 	 * returns the playable state of the player
 	 * @return the status of this player
@@ -68,14 +72,14 @@ public class Player {
 	public boolean getStatus() {
 		return dead;
 	}
-	
+
 	/**
 	 * sets this player to be 'dead'
 	 */
 	public void kill() {
 		dead = true;
 	}
-	
+
 	/**
 	 * return the room that this player was in for the previous round
 	 * @return
@@ -91,11 +95,13 @@ public class Player {
 	public void setPrevRoundRoom(String prevRoundRoom) {
 		this.prevRoundRoom = prevRoundRoom;
 	}
-	
 	/**
-	 * return the char[] that displays this players initials
-	 * @return
+	 * returns the image of the player
+	 * @return the image of this player
 	 */
+	public ImageIcon getImage() {
+		return image;
+	}
 
 	/**
 	 * return a string representation of the players hand

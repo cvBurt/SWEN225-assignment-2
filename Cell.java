@@ -1,20 +1,23 @@
 import java.util.*;
 
+import javax.swing.ImageIcon;
+
 public class Cell {
 	Boolean northNeighbour;
 	Boolean eastNeighbour;
 	Boolean southNeighbour;
 	Boolean westNeighbour;
 	String room;
+	ImageIcon pic;
 	char[] draw;
 	boolean occupied;
 	boolean isExit;
-	char[] player;
+	Player player;
 	char[] exit;
 	int x;
 	int y;
 
-	public Cell(String room, char[] draw) {
+	public Cell(String room, char[] draw, ImageIcon pic) {
 		this.draw = draw;
 		if (draw[0] == 'a') { // allows neighbours in all directions
 			this.northNeighbour = true;
@@ -106,8 +109,7 @@ public class Cell {
 			this.southNeighbour = false;
 			this.westNeighbour = true;
 		}
-		
-		
+		this.pic = pic;
 		this.room = room;
 		this.occupied = false;
 	}
@@ -140,16 +142,20 @@ public class Cell {
 		return draw;
 	}
 	
+	public ImageIcon getPic() {
+		return pic;
+	}
+	
 	public boolean hasPlayer() {
 		return this.occupied;
 	}
 
-	public void setPlayer(char[] player) {
+	public void setPlayer(Player player) {
 		this.player = player;
 		occupied = true;
 	}
 	
-	public char[] getPlayerInit() {
+	public Player getPlayerInit() {
 		return player;
 	}
 	

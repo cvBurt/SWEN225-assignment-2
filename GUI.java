@@ -10,11 +10,15 @@ public class GUI extends JFrame {
 	String setPlayer = "";
 	Map<String,String> playerList = new HashMap<String,String>();
 	Cluedo game;
+	Board boardObj;
+	JLabel botDisp;
+	JFrame gameFrame;
 	
-	public GUI(Cluedo game){
+	public GUI(Cluedo game, Board board){
 		this.game = game;
-		//mainMenu();
-		playGame();
+		this.boardObj = board;
+		mainMenu();
+		//playGame();
 	}
 	
 	/**
@@ -26,8 +30,9 @@ public class GUI extends JFrame {
 		mainMenu.setPreferredSize(new Dimension(600,450));
 		mainMenu.setResizable(false);
 		
-		
 		JPanel panel = new JPanel();
+		
+		panel.setBackground(new Color(155, 215, 235));
 		
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
@@ -53,10 +58,10 @@ public class GUI extends JFrame {
 						JOptionPane.showMessageDialog(panel, "You must enter a valid number between 3-6", "Bad Number",JOptionPane.ERROR_MESSAGE);
 					}
 					else {
-						JFrame playerSelect = new JFrame("Player Select");
+						JPanel playerSelect = new JPanel();
 						ButtonGroup btnGrp = new ButtonGroup();
 						playerSelect.setLayout(new GridLayout(8,1));
-						playerSelect.setResizable(false);
+						//playerSelect.setResizable(false);
 						
 						playerSelect.add(new JLabel("Player's Name"));
 						
@@ -134,7 +139,7 @@ public class GUI extends JFrame {
 									}
 									if(count == noPlayers) {
 										playerSelect.setVisible(false);
-								    	playerSelect.dispose();
+								    	//playerSelect.dispose();
 										mainMenu.setVisible(false);
 								    	mainMenu.dispose();
 								    	game.setup(playerList);
@@ -145,8 +150,10 @@ public class GUI extends JFrame {
 							 }
 						});
 						
-						playerSelect.pack();
+						//playerSelect.pack();
 						playerSelect.setVisible(true);
+						
+						JOptionPane.showMessageDialog(panel, playerSelect, "Player Select", JOptionPane.PLAIN_MESSAGE);
 					}
 				}
 				catch(NumberFormatException error){
@@ -165,7 +172,7 @@ public class GUI extends JFrame {
 		rules.setMaximumSize(new Dimension(150, 40));
 		rules.addActionListener(new ActionListener(){  
 		    public void actionPerformed(ActionEvent e){ 
-		    	JOptionPane.showMessageDialog(panel, Cluedo.checkForHelp());
+		    	JOptionPane.showMessageDialog(panel, Cluedo.checkForHelp(), "Rules", JOptionPane.PLAIN_MESSAGE);
 		    }
 		});
 		panel.add(rules);
@@ -197,11 +204,15 @@ public class GUI extends JFrame {
 	 * set up GUI for the actual game of cluedo and controls it
 	 */
 	public void playGame() {
-		JFrame gameFrame = new JFrame("Cluedo");
+		gameFrame = new JFrame("Cluedo");
+		
+		Color back = new Color(224, 180, 94);
+		Border black = BorderFactory.createLineBorder(Color.BLACK);
 		
 		gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gameFrame.setPreferredSize(new Dimension(600,450));
+		gameFrame.setPreferredSize(new Dimension(770,710));
 		gameFrame.setLayout(new BorderLayout());
+		gameFrame.setResizable(false);
 		
 		JMenuBar menu = new JMenuBar();
 		menu.setPreferredSize(new Dimension(gameFrame.getWidth(),30));
@@ -211,10 +222,58 @@ public class GUI extends JFrame {
 		menu.add(game);
 		gameFrame.add(menu, BorderLayout.PAGE_START);
 		
-		JButton but = new JButton("Graph");
-		gameFrame.add(but, BorderLayout.CENTER);
 		
-		JPanel botDisp = new JPanel();
+		
+		JPanel leftSide = new JPanel();
+		leftSide.setBorder(black);
+		leftSide.setPreferredSize(new Dimension(100,0));
+		leftSide.setBackground(back);
+		gameFrame.add(leftSide, BorderLayout.LINE_START);
+		
+		JPanel boardDisplay = new JPanel(new GridLayout(25,24));
+		Cell[][] board = boardObj.getBoardArray();
+		ImageIcon cellPic;
+		JLabel label;
+		for (int i = 0; i < 25; i++) {
+			for (int j = 0; j < 24; j++) {
+				if (board[j][i].occupied) {
+					cellPic = board[j][i].getPlayerInit().getImage();
+				}
+				else {
+					cellPic = board[j][i].getPic();
+				}
+				label = new JLabel(cellPic);
+				if (board[j][i].occupied) {
+				label.setToolTipText(board[j][i].getPlayerInit().getName() + "/" + board[j][i].getPlayerInit().getcharacterName());
+				}
+				Border border = BorderFactory.createLineBorder(boardDisplay.getBackground(), 1);
+				label.setBorder(border);
+				boardDisplay.add(label);
+			}
+		}
+		boardDisplay.setBorder(black);
+		gameFrame.add(boardDisplay, BorderLayout.CENTER);
+		
+		boardDisplay.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+		  });
+		
+		JPanel rightSide = new JPanel();
+		rightSide.setBorder(black);
+		rightSide.setPreferredSize(new Dimension(100,0));
+		rightSide.setBackground(back);
+		gameFrame.add(rightSide, BorderLayout.LINE_END);
+		
+		botDisp = new JLabel();
 		botDisp.setPreferredSize(new Dimension(gameFrame.getWidth(),100));
 		gameFrame.add(botDisp, BorderLayout.PAGE_END);
 		

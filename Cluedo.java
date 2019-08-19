@@ -1,5 +1,7 @@
 import java.util.*;
 
+import javax.swing.ImageIcon;
+
 public class Cluedo {
 	private List<Player> players;
 	private List<Card> characters;
@@ -12,6 +14,7 @@ public class Cluedo {
 	private Player currentPlayer;
 	private String winningClaim;
 	private boolean wonFromAccu;
+	private GUI display;
 	
 	/**
 	 * constructor used for testing purposes
@@ -27,12 +30,12 @@ public class Cluedo {
 	 * normal constructor
 	 */
 	public Cluedo (){
-		board = new Board();
 		players = new ArrayList<Player>();
 		addCharacters();
 		addWeapons();
 		addRooms();
-		new GUI(this);
+		board = new Board();
+		display = new GUI(this,board);
 	}
 	
 	/**
@@ -46,14 +49,15 @@ public class Cluedo {
 				Card character = characters.get(i);
 				if(character.getId().equals(playerList.get(player))) {
 					Cell startPos = board.getCell(character.getStartRow(), character.getStartCol());
-					Player toAdd = new Player(player, startPos, playerList.get(player));
-					startPos.setPlayer(character.getInitials());
+					Player toAdd = new Player(player, startPos, playerList.get(player), character.getImg());
+					startPos.setPlayer(toAdd);
 					players.add(toAdd);
 					break;
 				}
 			}
 		}
 		setSolution();
+		
 		List<Card> allCards = new ArrayList<Card>();
 		allCards.addAll(characters);
 		allCards.addAll(weapons);
@@ -68,57 +72,57 @@ public class Cluedo {
 				Collections.shuffle(allCards);
 				player.addCardToHand(allCards.get(0));
 				allCards.remove(0);
+				if(allCards.isEmpty()) break;
 			}
 		}
 		
-		//tick(sc);
+		//tick();
 	}
 	
 	/**
 	 * main loop for running game, each loop turn (a tick)
 	 * @param sc
 	 */
-	public void tick(Scanner sc) {
+	public void tick() {
 		int playerTurn = 0;
 		while(true) {
 			currentPlayer = players.get(playerTurn);
 			if(!currentPlayer.getStatus()) {
 				System.out.println("It is " + currentPlayer.getName() + "'s turn, enter any lettered key to continue");
-				if(sc.next() != null) {
+				//if(sc.next() != null) {
 					board.draw();
 					int roll = rollDice();
 					System.out.println("You rolled " + roll + "! whats your move?");
 					if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
-						exitRoom(sc);
+						exitRoom();
 						System.out.println("You rolled " + roll + "! whats your move?");
-					}
-					validateMove(sc, roll);
-					if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
+					}					if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
 						System.out.println("Enter 'y' to make an suggestion or enter any other letter to skip");
-						if(sc.next().equalsIgnoreCase("y")) {
-							if(checkSuggestion(sc)) {
-								break;
-							}
-						}
+				//		if(sc.next().equalsIgnoreCase("y")) {
+				//			if(checkSuggestion(sc)) {
+				//				break;
+				//			}
+				//		}
 						System.out.println("Enter 'y' to make an accusation or enter any other letter to skip");
-						if(sc.next().equalsIgnoreCase("y")) {
-							if(checkAccusation(sc)) {
-								break;
-							}
+				//		if(sc.next().equalsIgnoreCase("y")) {
+				//			if(checkAccusation(sc)) {
+				//				break;
+				//			}
 							enterRoom("None",currentPlayer);
 							board.draw();
 							System.out.println("=============================================================");
 							System.out.println(currentPlayer.getName()+ " is now out of the game due to an incorrect accusation");
 							currentPlayer.kill();
-						}
-					}
-				}
+				//		}
+				//	}
+				//}
 			}
 			playerTurn++;
 			if(playerTurn == players.size()) playerTurn = 0;
 		}
 		if(wonFromAccu) System.out.println(currentPlayer.getName() + "won the game with the accusation: " + winningClaim);
 		else System.out.println(currentPlayer.getName() + "won the game with the suggestion: " + winningClaim);
+		}
 	}
 	
 	/**
@@ -142,12 +146,12 @@ public class Cluedo {
 	 */
 	public void addCharacters() {
 		characters = new ArrayList<Card>();
-		characters.add(new Card("character","Miss Scarlet",7,24,new char[]{' ','M',' ',' ','S'}));
-		characters.add(new Card("character","Colonel Mustard",0,17,new char[]{' ','C',' ',' ','M'}));
-		characters.add(new Card("character","Mrs. White",9,0,new char[]{' ','M',' ',' ','W'}));
-		characters.add(new Card("character","Mr. Green",14,0,new char[]{' ','M',' ',' ','G'}));
-		characters.add(new Card("character","Mrs. Peacock",23,6,new char[]{' ','M',' ',' ','P'}));
-		characters.add(new Card("character","Prof. Plum",23,19,new char[]{' ','P',' ',' ','P'}));
+		characters.add(new Card("character","Miss Scarlet",7,24, new ImageIcon(getClass().getResource("Scarlet.png"))));
+		characters.add(new Card("character","Colonel Mustard",0,17, new ImageIcon(getClass().getResource("Mustard.png"))));
+		characters.add(new Card("character","Mrs. White",9,0, new ImageIcon(getClass().getResource("White.png"))));
+		characters.add(new Card("character","Mr. Green",14,0, new ImageIcon(getClass().getResource("Green.png"))));
+		characters.add(new Card("character","Mrs. Peacock",23,6, new ImageIcon(getClass().getResource("Peacock.png"))));
+		characters.add(new Card("character","Prof. Plum",23,19, new ImageIcon(getClass().getResource("Plum.png"))));
 	}
 	
 	/**
@@ -192,7 +196,7 @@ public class Cluedo {
 	 * displays options for exiting room and moves player to selected exit 
 	 * @param sc
 	 */
-	public void exitRoom(Scanner sc) {
+	public void exitRoom() {
 		System.out.println(currentPlayer.getLocation().getRoom());
 		Cell[] exits = board.roomDoors.get(currentPlayer.getLocation().getRoom());
 		int numExits = exits.length;
@@ -205,12 +209,11 @@ public class Cluedo {
 		board.draw();
 		int input;
 		while(true) {
-			input = sc.nextInt();
+			input = 0;
 			if(input > -1 && input < numExits) {
 				exits[input].removePlayer();
 				currentPlayer.getLocation().removePlayer();
 				currentPlayer.setLocation(exits[input]);
-				//exits[input].setPlayer(currentPlayer.getPlayerInitials());
 				break;
 			}
 		}
