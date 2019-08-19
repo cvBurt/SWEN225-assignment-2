@@ -13,7 +13,7 @@ public class Cell {
 	boolean occupied;
 	boolean isExit;
 	Player player;
-	char[] exit;
+	ImageIcon exit;
 	int x;
 	int y;
 
@@ -155,7 +155,7 @@ public class Cell {
 		occupied = true;
 	}
 	
-	public Player getPlayerInit() {
+	public Player getPlayer() {
 		return player;
 	}
 	
@@ -163,12 +163,12 @@ public class Cell {
 		occupied = false;
 	}
 	
-	public void setExit(char[] exit) {
+	public void setExit(ImageIcon exit) {
 		this.exit = exit;
 		this.isExit = true;
 	}
 	
-	public char[] getExit() {
+	public ImageIcon getExit() {
 		return exit;
 	}
 	

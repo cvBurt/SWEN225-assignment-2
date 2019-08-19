@@ -116,4 +116,12 @@ public class Player {
 		toReturn.append(hand.get(i).getId() +".");
 		return toReturn.toString();
 	}
+	
+	/**
+	 * used for displaying name in the GUI
+	 * @return
+	 */
+	public String dispName() {
+		return this.name +" ("+this.characterName+")";
+	}
 }

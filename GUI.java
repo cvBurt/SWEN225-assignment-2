@@ -1,5 +1,6 @@
 
 import java.util.*;
+import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -7,18 +8,22 @@ import javax.swing.border.*;
 
 public class GUI extends JFrame {
 	
-	String setPlayer = "";
-	Map<String,String> playerList = new HashMap<String,String>();
-	Cluedo game;
-	Board boardObj;
-	JLabel botDisp;
-	JFrame gameFrame;
+	private String setPlayer = "";
+	private Map<String,String> playerList = new HashMap<String,String>();
+	private Cluedo game;
+	private Board boardObj;
+	private JLabel botDisp;
+	private JFrame gameFrame;
+	private String accusedCharacter = "";
+	private String suggestedWeapon ="";
+	private String suggestedRoom = "";
+	private int selectPlayerCount;
+	
 	
 	public GUI(Cluedo game, Board board){
 		this.game = game;
 		this.boardObj = board;
 		mainMenu();
-		//playGame();
 	}
 	
 	/**
@@ -123,13 +128,13 @@ public class GUI extends JFrame {
 						playerSelect.add(profPlum);
 						
 						playerName.addActionListener(new ActionListener(){
-							int count = 0;
 							public void actionPerformed(ActionEvent e){
 								if(btnGrp.getSelection() != null) {
-									if(count != noPlayers) {
-										if(playerList.putIfAbsent(playerName.getText(),setPlayer) == null) {
+									if(selectPlayerCount != noPlayers) {
+										if(playerList.putIfAbsent(playerName.getText(),setPlayer) == null && !playerName.getText().equals("")) {
 											btnGrp.getSelection().setEnabled(false);
-											count++;
+											btnGrp.clearSelection();
+											selectPlayerCount++;
 											playerName.setText("");
 										}
 										else{	
@@ -137,23 +142,19 @@ public class GUI extends JFrame {
 												"Bad Name",JOptionPane.ERROR_MESSAGE);
 										}
 									}
-									if(count == noPlayers) {
+									if(selectPlayerCount == noPlayers) {
 										playerSelect.setVisible(false);
-								    	//playerSelect.dispose();
 										mainMenu.setVisible(false);
 								    	mainMenu.dispose();
 								    	game.setup(playerList);
-										playGame();
 									}
-								}
-										
+								}		
 							 }
 						});
-						
-						//playerSelect.pack();
 						playerSelect.setVisible(true);
-						
 						JOptionPane.showMessageDialog(panel, playerSelect, "Player Select", JOptionPane.PLAIN_MESSAGE);
+						playerList.clear();
+						selectPlayerCount = 0;
 					}
 				}
 				catch(NumberFormatException error){
@@ -223,7 +224,6 @@ public class GUI extends JFrame {
 		gameFrame.add(menu, BorderLayout.PAGE_START);
 		
 		
-		
 		JPanel leftSide = new JPanel();
 		leftSide.setBorder(black);
 		leftSide.setPreferredSize(new Dimension(100,0));
@@ -237,14 +237,14 @@ public class GUI extends JFrame {
 		for (int i = 0; i < 25; i++) {
 			for (int j = 0; j < 24; j++) {
 				if (board[j][i].occupied) {
-					cellPic = board[j][i].getPlayerInit().getImage();
+					cellPic = board[j][i].getPlayer().getImage();
 				}
 				else {
 					cellPic = board[j][i].getPic();
 				}
 				label = new JLabel(cellPic);
 				if (board[j][i].occupied) {
-				label.setToolTipText(board[j][i].getPlayerInit().getName() + "/" + board[j][i].getPlayerInit().getcharacterName());
+				label.setToolTipText(board[j][i].getPlayer().dispName());
 				}
 				Border border = BorderFactory.createLineBorder(boardDisplay.getBackground(), 1);
 				label.setBorder(border);
@@ -279,6 +279,269 @@ public class GUI extends JFrame {
 		
 		gameFrame.pack();
 		gameFrame.setVisible(true);
+	}
+	
+	/**
+	 * Shows the hand of the specified player
+	 * @param player
+	 */
+	public void showHand(Player player) {
+		JPanel dispHand = new JPanel();
+		List<Card> hand = player.getHand();
+		
+		GridLayout grid = new GridLayout(1,hand.size());
+		dispHand.setLayout(grid);
+		for(Card card : hand) {
+			dispHand.add(new JLabel(card.getCardImg()));
+		}
+		JOptionPane.showMessageDialog(gameFrame,"Press 'OK' to show "+player.dispName()+"'s hand","Displaying Hand", JOptionPane.PLAIN_MESSAGE);
+		JOptionPane.showMessageDialog(gameFrame, dispHand, player.dispName()+"'s hand", JOptionPane.PLAIN_MESSAGE);
+	}
+	
+	public void playTurn(Player currPlayer, int roll) {
+		botDisp = new JLabel(currPlayer.dispName()+" rolled "+roll+"!!\n"
+				+ "Use the arrow keys or 'w','a','s','d' keys to choose your move\n"
+				+ "and press enter when a valid move is choosen");
+		botDisp.setPreferredSize(new Dimension(gameFrame.getWidth(),100));
+		gameFrame.add(botDisp, BorderLayout.PAGE_END);
+		
+		gameFrame.addKeyListener(new KeyListener() {
+		public void keyPressed(KeyEvent e) {
+		  }
+
+		  public void keyReleased(KeyEvent e) {
+		    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_A) {
+		    	
+		    }
+		    else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_D ) {
+		    	
+		    }
+		    else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
+		    	
+		    }
+		    else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
+		    	
+		    }
+		    else if (e.getKeyCode() == KeyEvent.VK_ENTER) {}
+
+		  }
+
+		  public void keyTyped(KeyEvent e) {
+		  }
+		});
+		
+		
+	}
+	
+	public void deathNotice(Player player) {
+		
+	}
+	
+	/**
+	 * asks current player if they would like to make a suggestion
+	 * @param currPlayer
+	 * @return true if yes, false if no
+	 */
+	public boolean askToSuggest(Player currPlayer) {
+		int confirm = JOptionPane.showConfirmDialog(gameFrame, "Would "+currPlayer.dispName()+" like to make a suggestion?" , 
+				"Make Suggestion?", JOptionPane.YES_NO_OPTION);
+		if(confirm == JOptionPane.YES_OPTION) return true;
+		return false;
+	}
+	
+	/**
+	 * asks current player if they would like to make an accusation
+	 * @param currPlayer
+	 * @return true if yes, false if no
+	 */
+	public boolean askToAccuse(Player currPlayer) {
+		int confirm = JOptionPane.showConfirmDialog(gameFrame, "Would "+currPlayer.dispName()+" like to make an accusation?" , 
+				"Make Accusation?", JOptionPane.YES_NO_OPTION);
+		if(confirm == JOptionPane.YES_OPTION) return true;
+		return false;
+	}
+	
+	/**
+	 * collects the currents players suggestion
+	 * @param currPlayer
+	 * @return whether or not the suggestion is true
+	 */
+	public boolean makeSuggestion(Player currPlayer) {
+		String[] suggest = new String[3];
+		accusedCharacter = "";
+		
+		JPanel characterSelect = new JPanel();
+		ButtonGroup btnGrp = new ButtonGroup();
+		GridLayout grid = new GridLayout(4,game.getCharacters().size()/4);
+		characterSelect.setLayout(grid);
+		for(Card character : game.getCharacters()) {
+			JRadioButton charBtn = new JRadioButton(character.getId());
+			btnGrp.add(charBtn);
+			charBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					accusedCharacter = character.getId();
+				}
+			});
+			characterSelect.add(charBtn);
+		}
+		int check = JOptionPane.showConfirmDialog(gameFrame, characterSelect, currPlayer.dispName()+" Suggest Character", JOptionPane.OK_CANCEL_OPTION);
+		if(check == JOptionPane.CANCEL_OPTION) {
+			JOptionPane.showMessageDialog(gameFrame, "You can't cancel a suggestion", currPlayer.dispName()+" Suggest Character", JOptionPane.PLAIN_MESSAGE);
+			return makeSuggestion(currPlayer);
+		}
+		if(accusedCharacter.equals("")) {
+			JOptionPane.showMessageDialog(gameFrame, "You must select a character", currPlayer.dispName()+" Suggest Character", JOptionPane.PLAIN_MESSAGE);
+			return makeSuggestion(currPlayer);
+		}
+		suggest[0] = accusedCharacter;
+		
+		suggestedWeapon = "";
+		
+		JPanel weaponSelect = new JPanel();
+		btnGrp = new ButtonGroup();
+		grid = new GridLayout(4,game.getWeapons().size()/4);
+		weaponSelect.setLayout(grid);
+		for(Card weapon : game.getWeapons()) {
+			JRadioButton weaponBtn = new JRadioButton(weapon.getId());
+			btnGrp.add(weaponBtn);
+			weaponBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					suggestedWeapon = weapon.getId();
+				}
+			});
+			weaponSelect.add(weaponBtn);
+		}
+		check = JOptionPane.showConfirmDialog(gameFrame, weaponSelect, currPlayer.dispName()+" Suggest Weapon", JOptionPane.OK_CANCEL_OPTION);
+		if(check == JOptionPane.CANCEL_OPTION) {
+			JOptionPane.showMessageDialog(gameFrame, "You can't cancel a suggestion", currPlayer.dispName()+" Suggest Weapon", JOptionPane.PLAIN_MESSAGE);
+			return makeSuggestion(currPlayer);
+		}
+		if(suggestedWeapon.equals("")) {
+			JOptionPane.showMessageDialog(gameFrame, "You must select a wepaon", currPlayer.dispName()+" Suggest Weapon", JOptionPane.PLAIN_MESSAGE);
+			return makeSuggestion(currPlayer);
+		}
+		suggest[1] = suggestedWeapon;
+		
+		suggestedRoom = "";
+		
+		JPanel roomSelect = new JPanel();
+		btnGrp = new ButtonGroup();
+		grid = new GridLayout(4,game.getRooms().size()/4);
+		roomSelect.setLayout(grid);
+		for(Card room : game.getRooms()) {
+			JRadioButton roomBtn = new JRadioButton(room.getId());
+			btnGrp.add(roomBtn);
+			roomBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					suggestedRoom = room.getId();
+				}
+			});
+			roomSelect.add(roomBtn);
+		}
+		check = JOptionPane.showConfirmDialog(gameFrame, roomSelect, currPlayer.dispName()+" Suggest Room", JOptionPane.OK_CANCEL_OPTION);
+		if(check == JOptionPane.CANCEL_OPTION) {
+			JOptionPane.showMessageDialog(gameFrame, "You can't cancel a suggestion", currPlayer.dispName()+" Suggest Room", JOptionPane.PLAIN_MESSAGE);
+			return makeSuggestion(currPlayer);
+		}
+		if(suggestedRoom.equals("")) {
+			JOptionPane.showMessageDialog(gameFrame, "You must select a room", currPlayer.dispName()+" Suggest Room", JOptionPane.PLAIN_MESSAGE);
+			return makeSuggestion(currPlayer);
+		}
+		suggest[2] = suggestedRoom;
+		
+		return game.checkSuggestion(suggest);
+	}
+	
+	/**
+	 * collects the currents players accusation
+	 * @param currPlayer
+	 * @return whether or not the accusation is true
+	 */
+	public boolean makeAccusation(Player currPlayer) {
+		String[] accuse = new String[3];
+		
+		accusedCharacter = "";
+		
+		JPanel characterSelect = new JPanel();
+		ButtonGroup btnGrp = new ButtonGroup();
+		GridLayout grid = new GridLayout(4,game.getCharacters().size()/4);
+		characterSelect.setLayout(grid);
+		for(Card character : game.getCharacters()) {
+			JRadioButton charBtn = new JRadioButton(character.getId());
+			btnGrp.add(charBtn);
+			charBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					accusedCharacter = character.getId();
+				}
+			});
+			characterSelect.add(charBtn);
+		}
+		int check = JOptionPane.showConfirmDialog(gameFrame, characterSelect, currPlayer.dispName()+" Accuse Character", JOptionPane.OK_CANCEL_OPTION);
+		if(check == JOptionPane.CANCEL_OPTION) {
+			JOptionPane.showMessageDialog(gameFrame, "You can't cancel an Accusation", currPlayer.dispName()+" Accuse Character", JOptionPane.PLAIN_MESSAGE);
+			return makeAccusation(currPlayer);
+		}
+		if(accusedCharacter.equals("")) {
+			JOptionPane.showMessageDialog(gameFrame, "You must select a character", currPlayer.dispName()+" Accuse Character", JOptionPane.PLAIN_MESSAGE);
+			return makeAccusation(currPlayer);
+		}
+		accuse[0] = accusedCharacter;
+		
+		suggestedWeapon = "";
+		
+		JPanel weaponSelect = new JPanel();
+		btnGrp = new ButtonGroup();
+		grid = new GridLayout(4,game.getWeapons().size()/4);
+		weaponSelect.setLayout(grid);
+		for(Card weapon : game.getWeapons()) {
+			JRadioButton weaponBtn = new JRadioButton(weapon.getId());
+			btnGrp.add(weaponBtn);
+			weaponBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					suggestedWeapon = weapon.getId();
+				}
+			});
+			weaponSelect.add(weaponBtn);
+		}
+		check = JOptionPane.showConfirmDialog(gameFrame, weaponSelect, currPlayer.dispName()+" Accuse Weapon", JOptionPane.OK_CANCEL_OPTION);
+		if(check == JOptionPane.CANCEL_OPTION) {
+			JOptionPane.showMessageDialog(gameFrame, "You can't cancel an accusation", currPlayer.dispName()+" Accuse Weapon", JOptionPane.PLAIN_MESSAGE);
+			return makeAccusation(currPlayer);
+		}
+		if(suggestedWeapon.equals("")) {
+			JOptionPane.showMessageDialog(gameFrame, "You must select a weapon", currPlayer.dispName()+" Accuse Weapon", JOptionPane.PLAIN_MESSAGE);
+			return makeAccusation(currPlayer);
+		}
+		accuse[1] = suggestedWeapon;
+		
+		suggestedRoom = "";
+		
+		JPanel roomSelect = new JPanel();
+		btnGrp = new ButtonGroup();
+		grid = new GridLayout(4,game.getRooms().size()/4);
+		roomSelect.setLayout(grid);
+		for(Card room : game.getRooms()) {
+			JRadioButton roomBtn = new JRadioButton(room.getId());
+			btnGrp.add(roomBtn);
+			roomBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					suggestedRoom = room.getId();
+				}
+			});
+			roomSelect.add(roomBtn);
+		}
+		check = JOptionPane.showConfirmDialog(gameFrame, roomSelect, currPlayer.dispName()+" Accuse Room", JOptionPane.OK_CANCEL_OPTION);
+		if(check == JOptionPane.CANCEL_OPTION) {
+			JOptionPane.showMessageDialog(gameFrame, "You can't cancel an accusation", currPlayer.dispName()+" Accuse Room", JOptionPane.PLAIN_MESSAGE);
+			return makeAccusation(currPlayer);
+		}
+		if(suggestedRoom.equals("")) {
+			JOptionPane.showMessageDialog(gameFrame, "You must select a room", currPlayer.dispName()+" Accuse Room", JOptionPane.PLAIN_MESSAGE);
+			return makeAccusation(currPlayer);
+		}
+		accuse[2] = suggestedRoom;
+		
+		return game.checkAccusation(accuse);
 	}
 
 }

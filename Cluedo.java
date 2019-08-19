@@ -75,8 +75,12 @@ public class Cluedo {
 				if(allCards.isEmpty()) break;
 			}
 		}
+		display.playGame();
+		for(Player player : players) {
+			display.showHand(player);
+		}
 		
-		//tick();
+		tick();
 	}
 	
 	/**
@@ -88,41 +92,31 @@ public class Cluedo {
 		while(true) {
 			currentPlayer = players.get(playerTurn);
 			if(!currentPlayer.getStatus()) {
-				System.out.println("It is " + currentPlayer.getName() + "'s turn, enter any lettered key to continue");
-				//if(sc.next() != null) {
-					board.draw();
-					int roll = rollDice();
-					System.out.println("You rolled " + roll + "! whats your move?");
-					if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
-						exitRoom();
-						System.out.println("You rolled " + roll + "! whats your move?");
-					}					if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
-						System.out.println("Enter 'y' to make an suggestion or enter any other letter to skip");
-				//		if(sc.next().equalsIgnoreCase("y")) {
-				//			if(checkSuggestion(sc)) {
-				//				break;
-				//			}
-				//		}
-						System.out.println("Enter 'y' to make an accusation or enter any other letter to skip");
-				//		if(sc.next().equalsIgnoreCase("y")) {
-				//			if(checkAccusation(sc)) {
-				//				break;
-				//			}
-							enterRoom("None",currentPlayer);
-							board.draw();
-							System.out.println("=============================================================");
-							System.out.println(currentPlayer.getName()+ " is now out of the game due to an incorrect accusation");
+				if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
+					exitRoom();
+				}	
+				//display.playTurn(currentPlayer,rollDice());
+				if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
+					if(display.askToSuggest(currentPlayer)) {
+							if(display.makeSuggestion(currentPlayer)) {
+									break;
+							}
+					}
+					if(display.askToAccuse(currentPlayer)) {
+							if(display.makeAccusation(currentPlayer)) {
+								break;
+							}
+							display.deathNotice(currentPlayer);
 							currentPlayer.kill();
-				//		}
-				//	}
-				//}
+					}
+				}
 			}
 			playerTurn++;
 			if(playerTurn == players.size()) playerTurn = 0;
 		}
-		if(wonFromAccu) System.out.println(currentPlayer.getName() + "won the game with the accusation: " + winningClaim);
-		else System.out.println(currentPlayer.getName() + "won the game with the suggestion: " + winningClaim);
-		}
+		
+		if(wonFromAccu) System.out.println(currentPlayer.getName() + " won the game with the accusation: " + winningClaim);
+		else System.out.println(currentPlayer.getName() + " won the game with the suggestion: " + winningClaim);
 	}
 	
 	/**
@@ -146,12 +140,12 @@ public class Cluedo {
 	 */
 	public void addCharacters() {
 		characters = new ArrayList<Card>();
-		characters.add(new Card("character","Miss Scarlet",7,24, new ImageIcon(getClass().getResource("Scarlet.png"))));
-		characters.add(new Card("character","Colonel Mustard",0,17, new ImageIcon(getClass().getResource("Mustard.png"))));
-		characters.add(new Card("character","Mrs. White",9,0, new ImageIcon(getClass().getResource("White.png"))));
-		characters.add(new Card("character","Mr. Green",14,0, new ImageIcon(getClass().getResource("Green.png"))));
-		characters.add(new Card("character","Mrs. Peacock",23,6, new ImageIcon(getClass().getResource("Peacock.png"))));
-		characters.add(new Card("character","Prof. Plum",23,19, new ImageIcon(getClass().getResource("Plum.png"))));
+		characters.add(new Card("character","Miss Scarlet",7,24, new ImageIcon(getClass().getResource("Scarlet.png")),new ImageIcon(getClass().getResource("MissScarletCard.png"))));
+		characters.add(new Card("character","Colonel Mustard",0,17, new ImageIcon(getClass().getResource("Mustard.png")),new ImageIcon(getClass().getResource("ColMustardCard.png"))));
+		characters.add(new Card("character","Mrs. White",9,0, new ImageIcon(getClass().getResource("White.png")),new ImageIcon(getClass().getResource("MrsWhiteCard.png"))));
+		characters.add(new Card("character","Mr. Green",14,0, new ImageIcon(getClass().getResource("Green.png")),new ImageIcon(getClass().getResource("MrGreenCard.png"))));
+		characters.add(new Card("character","Mrs. Peacock",23,6, new ImageIcon(getClass().getResource("Peacock.png")),new ImageIcon(getClass().getResource("MrsPeacockCard.png"))));
+		characters.add(new Card("character","Prof. Plum",23,19, new ImageIcon(getClass().getResource("Plum.png")),new ImageIcon(getClass().getResource("ProfPlumCard.png"))));
 	}
 	
 	/**
@@ -159,12 +153,12 @@ public class Cluedo {
 	 */
 	public void addWeapons() {
 		weapons = new ArrayList<Card>();
-		weapons.add(new Card("weapon","Candelstick"));
-		weapons.add(new Card("weapon","Dagger"));
-		weapons.add(new Card("weapon","Lead Pipe"));
-		weapons.add(new Card("weapon","Revolver"));
-		weapons.add(new Card("weapon","Rope"));
-		weapons.add(new Card("weapon","Spanner"));
+		weapons.add(new Card("weapon","Candelstick",new ImageIcon(getClass().getResource("candelstick.png"))));
+		weapons.add(new Card("weapon","Dagger",new ImageIcon(getClass().getResource("dagger.png"))));
+		weapons.add(new Card("weapon","Lead Pipe",new ImageIcon(getClass().getResource("leadPipe.png"))));
+		weapons.add(new Card("weapon","Revolver",new ImageIcon(getClass().getResource("revolver.png"))));
+		weapons.add(new Card("weapon","Rope",new ImageIcon(getClass().getResource("rope.png"))));
+		weapons.add(new Card("weapon","Wrench",new ImageIcon(getClass().getResource("wrench.png"))));
 	}
 	
 	/**
@@ -172,15 +166,15 @@ public class Cluedo {
 	 */
 	public void addRooms() {
 		rooms = new ArrayList<Card>();
-		rooms.add(new Card("room","Kitchen"));
-		rooms.add(new Card("room","Ball Room"));
-		rooms.add(new Card("room","Conservatory"));
-		rooms.add(new Card("room","Dining Room"));
-		rooms.add(new Card("room","Billiard Room"));
-		rooms.add(new Card("room","Library"));
-		rooms.add(new Card("room","Lounge"));
-		rooms.add(new Card("room","Hall"));
-		rooms.add(new Card("room","Study"));
+		rooms.add(new Card("room","Kitchen",new ImageIcon(getClass().getResource("kitchen.png"))));
+		rooms.add(new Card("room","Ball Room",new ImageIcon(getClass().getResource("ballroom.png"))));
+		rooms.add(new Card("room","Conservatory",new ImageIcon(getClass().getResource("conservatory.png"))));
+		rooms.add(new Card("room","Dining Room",new ImageIcon(getClass().getResource("dinning.png"))));
+		rooms.add(new Card("room","Billiard Room",new ImageIcon(getClass().getResource("billiard.png"))));
+		rooms.add(new Card("room","Library",new ImageIcon(getClass().getResource("library.png"))));
+		rooms.add(new Card("room","Lounge",new ImageIcon(getClass().getResource("lounge.png"))));
+		rooms.add(new Card("room","Hall",new ImageIcon(getClass().getResource("hall.png"))));
+		rooms.add(new Card("room","Study",new ImageIcon(getClass().getResource("study.png"))));
 	}
 	
 	/**
@@ -200,13 +194,6 @@ public class Cluedo {
 		System.out.println(currentPlayer.getLocation().getRoom());
 		Cell[] exits = board.roomDoors.get(currentPlayer.getLocation().getRoom());
 		int numExits = exits.length;
-		System.out.println("Select an exit from 0 - " + (numExits-1));
-		for(int i=0; i<numExits; i++) {
-			if(!exits[i].hasPlayer()) {
-				exits[i].setExit(new char[] {' ',Character.forDigit(i, 10), ' ',' ',' ' });
-			}
-		}
-		board.draw();
 		int input;
 		while(true) {
 			input = 0;
@@ -220,7 +207,6 @@ public class Cluedo {
 		for(int i=0; i<numExits; i++) {
 			exits[i].removeExit();
 		}
-		board.draw();
 	}
 	
 	/**
@@ -233,12 +219,12 @@ public class Cluedo {
 		Cell[] store = board.roomStore.get(room);
 		for(int i=0; i<store.length; i++) {
 			if(!store[i].hasPlayer()) {
-				//store[i].setPlayer(playerToEnter.getPlayerInitials());
+				store[i].setPlayer(playerToEnter);
 				playerToEnter.getLocation().removePlayer();
 				playerToEnter.setLocation(store[i]);
+				break;
 			}
 		}
-		board.draw();
 	}
 	
 	/**
@@ -443,43 +429,32 @@ public class Cluedo {
 	 * @param sc
 	 * @return
 	 */
-	public boolean checkSuggestion(Scanner sc) {
-		System.out.println("(Please make the suggestion in the format \"Person,Weapon,Room\")");
-		while(true) {
-			if(sc.nextLine() != null) {
-				String[] suggestion = sc.nextLine().split(",");
-				for(Player player : this.players) {
-					if(player.getName().equalsIgnoreCase(suggestion[0])) {
-						for(Card room : rooms) {
-							if(room.getId().equalsIgnoreCase(suggestion[2]))
-							enterRoom(room.getId(),player);
-						}
-					}
-				}
-				if(isValidSuggestion(suggestion)) {
-					if(murderer.getId().equalsIgnoreCase(suggestion[0])) {
-						if(murderWeapon.getId().equalsIgnoreCase(suggestion[1])) {
-							if(murderRoom.getId().equalsIgnoreCase(suggestion[2])) {
-								winningClaim = Arrays.toString(suggestion);
-								wonFromAccu = false;
-								return true;
-							}
-							else {
-								refuteRoom(suggestion[2], sc);
-								break;
-							}
-						}
-						else {
-							refuteWeapon(suggestion[1], sc);
-							break;
-						}
-					}
-					else {
-						refutePerson(suggestion[0], sc);
-						break;
-					}
+	public boolean checkSuggestion(String[] suggestion) {
+		for(Player player : this.players) {
+			if(player.getName().equalsIgnoreCase(suggestion[0])) {
+				for(Card room : rooms) {
+					if(room.getId().equalsIgnoreCase(suggestion[2]))
+					enterRoom(room.getId(),player);
 				}
 			}
+		}
+		if(murderer.getId().equalsIgnoreCase(suggestion[0])) {
+			if(murderWeapon.getId().equalsIgnoreCase(suggestion[1])) {
+				if(murderRoom.getId().equalsIgnoreCase(suggestion[2])) {
+					winningClaim = Arrays.toString(suggestion);
+					wonFromAccu = false;
+					return true;
+				}
+				else {
+					refuteRoom(suggestion[2]);
+				}
+			}
+			else {
+				refuteWeapon(suggestion[1]);
+			}
+		}
+		else {
+			refutePerson(suggestion[0]);
 		}
 		return false;
 	}
@@ -490,22 +465,13 @@ public class Cluedo {
 	 * @param sc
 	 * @return if accusation is true or false
 	 */
-	public boolean checkAccusation(Scanner sc) {
-		System.out.println("(Please make the accusation in the format \"Person,Weapon,Room\")");
-		while(true) {
-			if(sc.nextLine() != null) {
-				String[] accusation = sc.nextLine().split(",");
-				if(isValidAccusation(accusation)) {
-					if(murderer.getId().equalsIgnoreCase(accusation[0])) {
-						if(murderWeapon.getId().equalsIgnoreCase(accusation[1])) {
-							if(murderRoom.getId().equalsIgnoreCase(accusation[2])) {
-								winningClaim = Arrays.toString(accusation);
-								wonFromAccu = true;
-								return true;
-							}
-						}
-					}
-					break;
+	public boolean checkAccusation(String[] accusation) {
+		if(murderer.getId().equalsIgnoreCase(accusation[0])) {
+			if(murderWeapon.getId().equalsIgnoreCase(accusation[1])) {
+				if(murderRoom.getId().equalsIgnoreCase(accusation[2])) {
+					winningClaim = Arrays.toString(accusation);
+					wonFromAccu = true;
+					return true;
 				}
 			}
 		}
@@ -551,7 +517,7 @@ public class Cluedo {
 	 * finds which player can refute the suggested person
 	 * @param suggestedPerson
 	 */
-	public void refutePerson(String suggestedPerson, Scanner sc) {
+	public void refutePerson(String suggestedPerson) {
 		Player canRefute = null;
 		for(Player player : players) {
 			for(Card card : player.getHand()) {
@@ -561,24 +527,13 @@ public class Cluedo {
 				}
 			}
 		}
-		System.out.println(canRefute.getName() + " can refute, type any key to see hand and let " + currentPlayer.getName() +
-		" know what card you can refute secretly");
-		while(true) {
-			if(sc.next() != null) {
-				System.out.println(canRefute.showHand());
-				System.out.println("(press any key to hide your hand and start the next turn)");
-				if(sc.next() != null) clearConsole();
-				break;
-			}
-		}
-		board.draw();
 	}
 	
 	/**
 	 * finds which player can refute the suggested Weapon
 	 * @param suggestedPerson
 	 */
-	public void refuteWeapon(String suggestedWeapon, Scanner sc) {
+	public void refuteWeapon(String suggestedWeapon) {
 		Player canRefute = null;
 		for(Player player : players) {
 			if(player != currentPlayer) {
@@ -590,24 +545,13 @@ public class Cluedo {
 				}
 			}
 		}
-		System.out.println(canRefute.getName() + " can refute, type 'y' to see hand and let " + currentPlayer.getName() +
-		" know what card you can refute secretly");
-		while(true) {
-			if(sc.next() != null) {
-				System.out.println(canRefute.showHand());
-				System.out.println("(press any key to hide your hand and start the next turn)");
-				if(sc.next() != null) clearConsole();
-				break;
-			}
-		}
-		board.draw();
 	}
 	
 	/**
 	 * finds which player can refute the suggested Room
 	 * @param suggestedPerson
 	 */
-	public void refuteRoom(String suggestedRoom, Scanner sc) {
+	public void refuteRoom(String suggestedRoom) {
 		Player canRefute = null;
 		for(Player player : players) {
 			if(player != currentPlayer) {
@@ -618,108 +562,6 @@ public class Cluedo {
 					}
 				}
 			}
-		}
-		System.out.println(canRefute.getName() + " can refute, type any key to see hand and let " + currentPlayer.getName() +
-		" know what card you can refute secretly");
-		while(true) {
-			if(sc.next() != null) {
-				System.out.println(canRefute.showHand());
-				System.out.println("(press any key to hide your hand and start the next turn)");
-				if(sc.next() != null) clearConsole();
-				break;
-			}
-		}
-		board.draw();
-	}
-	
-	/**
-	 * checks that the provided suggestion is valid, each card suggested exits and that the room a person
-	 * suggest is the room that they are in
-	 * @param suggestion
-	 * @return
-	 */
-	public boolean isValidSuggestion(String[] suggestion) {
-		boolean validCharacter = false;
-		boolean validWeapon = false;
-		boolean validRoom = false;
-		for(Card character: characters) {
-			if(character.getId().equalsIgnoreCase(suggestion[0])) validCharacter = true;
-		}
-		if(!validCharacter) {
-			System.out.println("The person you have suggested \"" + suggestion[0] +"\" does not exist");
-			return false;
-		}
-		
-		for(Card weapon: weapons) {
-			if(weapon.getId().equalsIgnoreCase(suggestion[1])) validWeapon = true;
-		}
-		if(!validWeapon) {
-			System.out.println("The weapon you have suggested \"" + suggestion[1] +"\" does not exist");
-			return false;
-		}
-		
-		for(Card room: rooms) {
-			if(room.getId().equalsIgnoreCase(suggestion[2])) validRoom = true;
-		}
-		if(!validRoom) {
-			System.out.println("The room you have suggested \"" + suggestion[2] +"\" does not exist");
-			return false;
-		}
-		
-		if(!suggestion[2].equalsIgnoreCase(currentPlayer.getLocation().getRoom())) {
-			System.out.println("The room you have suggested \"" + suggestion[2] +"\" is not the room that you are currently in\n"
-					+ "you are in " + currentPlayer.getLocation().getRoom());
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * checks that the provided accusation is valid, each card suggested exits.
-	 * @param suggestion
-	 * @return
-	 */
-	public boolean isValidAccusation(String[] suggestion) {
-		boolean validCharacter = false;
-		boolean validWeapon = false;
-		boolean validRoom = false;
-		for(Card character: characters) {
-			if(character.getId().equalsIgnoreCase(suggestion[0])) validCharacter = true;
-		}
-		if(!validCharacter) {
-			System.out.println("The person you have suggested \"" + suggestion[0] +"\" does not exist");
-			return false;
-		}
-		
-		for(Card weapon: weapons) {
-			if(weapon.getId().equalsIgnoreCase(suggestion[1])) validWeapon = true;
-		}
-		if(!validWeapon) {
-			System.out.println("The weapon you have suggested \"" + suggestion[1] +"\" does not exist");
-			return false;
-		}
-		
-		for(Card room: rooms) {
-			if(room.getId().equalsIgnoreCase(suggestion[2])) validRoom = true;
-		}
-		if(!validRoom) {
-			System.out.println("The room you have suggested \"" + suggestion[2] +"\" does not exist");
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * clears console
-	 */
-	public void clearConsole() {
-		for(int i=0; i<90;i++) {
-			if(i == 50) {
-				System.out.println("---------------------------Stop Cheating, Scum---------------------------");
-			}
-			System.out.print("\n");
 		}
 	}
 
