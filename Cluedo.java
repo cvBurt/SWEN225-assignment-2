@@ -49,13 +49,14 @@ public class Cluedo {
 				Card character = characters.get(i);
 				if(character.getId().equals(playerList.get(player))) {
 					Cell startPos = board.getCell(character.getStartRow(), character.getStartCol());
-					Player toAdd = new Player(player, startPos, playerList.get(player), character.getImg());
+					Player toAdd = new Player(player, startPos, playerList.get(player), character.getImg(),i);
 					startPos.setPlayer(toAdd);
 					players.add(toAdd);
 					break;
 				}
 			}
 		}
+		Collections.sort(players);
 		setSolution();
 		
 		List<Card> allCards = new ArrayList<Card>();
@@ -80,7 +81,7 @@ public class Cluedo {
 			display.showHand(player);
 		}
 		
-		tick();
+		//tick();
 	}
 	
 	/**

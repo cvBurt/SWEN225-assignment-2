@@ -2,7 +2,7 @@ import java.util.*;
 
 import javax.swing.ImageIcon;
 
-public class Player {
+public class Player implements Comparable{
 	private String name;
 	private String characterName;
 	private List<Card> hand;
@@ -10,8 +10,9 @@ public class Player {
 	private boolean dead;
 	private String prevRoundRoom;
 	private ImageIcon image;
+	private int id;
 
-	public Player (String player, Cell location, String character, ImageIcon image) {
+	public Player (String player, Cell location, String character, ImageIcon image, int id) {
 		this.name = player;
 		this.characterName = character;
 		this.hand = new ArrayList<Card>();
@@ -19,6 +20,7 @@ public class Player {
 		this.location = location;
 		this.prevRoundRoom = location.getRoom();
 		this.image = image;
+		this.id = id;
 	}
 
 
@@ -124,4 +126,15 @@ public class Player {
 	public String dispName() {
 		return this.name +" ("+this.characterName+")";
 	}
+
+
+	@Override
+	public int compareTo(Object o) {
+		Player other = (Player) o;
+		if(this.id < other.id) return -1;
+		else if(this.id > other.id) return 1;
+		return 0;
+	}
+	
+	
 }
