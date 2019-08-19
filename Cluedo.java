@@ -28,11 +28,7 @@ public class Cluedo {
 	 */
 	public Cluedo (){
 		board = new Board();
-		players = new ArrayList<Player>();
-		addCharacters();
-		addWeapons();
-		addRooms();
-		new GUI(this);
+		board.draw();
 	}
 	
 	/**
@@ -40,18 +36,24 @@ public class Cluedo {
 	 * randomly generating a solution
 	 * and then distributing the cards amongst the players
 	 */
-	public void setup(Map<String,String> playerList) {
-		for(String player : playerList.keySet()) {
-			for(int i=0; i<characters.size(); i++) {
-				Card character = characters.get(i);
-				if(character.getId().equals(playerList.get(player))) {
-					Cell startPos = board.getCell(character.getStartRow(), character.getStartCol());
-					Player toAdd = new Player(player, startPos, playerList.get(player));
-					startPos.setPlayer(character.getInitials());
-					players.add(toAdd);
-					break;
+	public void setup(Scanner sc) {
+		System.out.println("How many players are palying?\nEnter a number between 3-6:");
+		int noPlayers;
+		while(true) {
+			if(sc.hasNext()) {
+				noPlayers = sc.nextInt();
+				if(noPlayers >= 3 && noPlayers <= 6) break;
+				else {
+					System.out.println("Please enter a number between 3-6:");
 				}
 			}
+		}
+		for(int i=0; i<noPlayers; i++) {
+			Card character = characters.get(i);
+			Cell startPos = board.getCell(character.getStartRow(), character.getStartCol());
+			Player toAdd = new Player(character.getId(), startPos, character.getInitials());
+			startPos.setPlayer(toAdd);
+			players.add(toAdd);
 		}
 		setSolution();
 		List<Card> allCards = new ArrayList<Card>();
@@ -71,7 +73,16 @@ public class Cluedo {
 			}
 		}
 		
-		//tick(sc);
+		System.out.println("Take turns noting down the cards that have been delt to each player. (keep them secret to you!!");
+		for(Player player : players) {
+			System.out.println(player.getName() + " when ready enter any lettered key to display your hand");
+			if(sc.next() != null) {
+				System.out.println(player.showHand());
+				System.out.println("(When ready enter any letered key to hide your hand again)");
+				if(sc.next() != null) clearConsole();
+			}
+		}
+		tick(sc);
 	}
 	
 	/**
@@ -210,7 +221,7 @@ public class Cluedo {
 				exits[input].removePlayer();
 				currentPlayer.getLocation().removePlayer();
 				currentPlayer.setLocation(exits[input]);
-				//exits[input].setPlayer(currentPlayer.getPlayerInitials());
+				exits[input].setPlayer(currentPlayer);
 				break;
 			}
 		}
@@ -230,7 +241,7 @@ public class Cluedo {
 		Cell[] store = board.roomStore.get(room);
 		for(int i=0; i<store.length; i++) {
 			if(!store[i].hasPlayer()) {
-				//store[i].setPlayer(playerToEnter.getPlayerInitials());
+				store[i].setPlayer(playerToEnter);
 				playerToEnter.getLocation().removePlayer();
 				playerToEnter.setLocation(store[i]);
 			}
@@ -424,7 +435,7 @@ public class Cluedo {
 		}
 		if(move.length == roll) {
 			currentPlayer.setLocation(currentLoc);
-			//currentLoc.setPlayer(currentPlayer.getPlayerInitials());
+			currentLoc.setPlayer(currentPlayer);
 			originLoc.removePlayer();
 			currentPlayer.setPrevRoundRoom(currentLoc.getRoom());
 			return true;
@@ -509,12 +520,9 @@ public class Cluedo {
 		return false;
 	}
 	
-	/**
-	 * print a list of rules when a user requests them
-	 * @param sc
-	 */
-	public static String checkForHelp() {
-			return  "Every character, weapon and room is represented by a card in the game. Before the game starts, one\n" + 
+	public void checkForHelp(Scanner sc) {
+		if(sc.next() == "/4") {
+			System.out.print("Every character, weapon and room is represented by a card in the game. Before the game starts, one\n" + 
 					"character, one weapon, and one room card are selected at random by the program. This selection represents\n" + 
 					"the murder circumstances, i.e., the solution that players need to figure out during game play.\n" + 
 					"The remaining weapon, room and character cards are then randomly distributed to the players.\n" + 
@@ -541,7 +549,8 @@ public class Cluedo {
 					"If the accusation made by a player exactly matches the actual murder circumstances (the program checks\n" + 
 					"if the accusation and solution match) the player wins, otherwise the player is excluded from making\n" + 
 					"further suggestions or accusations. This means the player will continue to refute suggestions by others\n" +
-					"but cannot win the game anymore.\n" ;
+					"but cannot win the game anymore.\n");
+		}
 	}
 	
 	/**
