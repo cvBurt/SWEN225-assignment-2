@@ -250,12 +250,9 @@ public class GUI extends JFrame {
 		boardDisplay.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				final int clickedCellY = (int)(e.getY()/cellWidth);
-				final int clickedCellX = (int)((e.getX() - 10)/cellWidth);
-				cellX = clickedCellX;
-				cellY = clickedCellY;
-				System.out.println(cellX);
-				System.out.println(cellY);
+				cellY  = (int)(e.getY()/cellWidth);
+				cellX =  (int)((e.getX() - 10)/cellWidth);
+				Cell test = getCell(e.getX(), e.getY());
 			}
 			@Override
 			public void mouseReleased(MouseEvent e) {}
@@ -687,6 +684,10 @@ public class GUI extends JFrame {
 
 	public void setHighlighted(Set<Cell> highlight) {
 		this.highlightedCell = highlight;
+	}
+	
+	public Cell getCell(int x, int y) {
+		return this.board[x][y];
 	}
 
 }
