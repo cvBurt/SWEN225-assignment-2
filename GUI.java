@@ -7,7 +7,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 public class GUI extends JFrame {
-	
+
 	private String setPlayer = "";
 	private Map<String,String> playerList = new HashMap<String,String>();
 	private Cluedo game;
@@ -25,15 +25,16 @@ public class GUI extends JFrame {
 	private int currentMoveCount;
 	private boolean moveEntered;
 	private Set<Cell> highlightedCell;
+	private int currentRoll;
 
-	
+
 	public GUI(Cluedo game, Board board){
 		this.game = game;
 		this.boardObj = board;
 		this.drawBoard = new JLabel[24][25];
 		mainMenu();
 	}
-	
+
 	/**
 	 * sets up GUI for the main menu of cluedo
 	 */
@@ -42,28 +43,28 @@ public class GUI extends JFrame {
 		mainMenu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainMenu.setPreferredSize(new Dimension(600,450));
 		mainMenu.setResizable(false);
-		
+
 		JPanel panel = new JPanel();
-		
+
 		panel.setBackground(new Color(155, 215, 235));
-		
+
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		
+
 		panel.add(Box.createRigidArea(new Dimension(0,60)));
-		
+
 		JLabel title = new JLabel("Welcome to Cluedo\n");
 		title.setFont(new Font(title.getFont().getName(),title.getFont().getStyle(), 50));
 		title.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panel.add(title);
-		
+
 		panel.add(Box.createRigidArea(new Dimension(0,60)));
-		
+
 		JButton start = new JButton("Start");
 		start.setAlignmentX(Component.CENTER_ALIGNMENT);
 		start.setFont(new Font(title.getFont().getName(),title.getFont().getStyle(), 25));
 		start.setMaximumSize(new Dimension(150, 40));
-		start.addActionListener(new ActionListener(){  
-		    public void actionPerformed(ActionEvent e){  
+		start.addActionListener(new ActionListener(){
+		    public void actionPerformed(ActionEvent e){
 				String inp = JOptionPane.showInputDialog(panel,"Please enter the amount of players (3-6)");
 				try {
 					int noPlayers = Integer.parseInt(inp);
@@ -75,12 +76,12 @@ public class GUI extends JFrame {
 						ButtonGroup btnGrp = new ButtonGroup();
 						playerSelect.setLayout(new GridLayout(8,1));
 						//playerSelect.setResizable(false);
-						
+
 						playerSelect.add(new JLabel("Player's Name"));
-						
+
 						JTextField playerName = new JTextField();
 						playerSelect.add(playerName);
-						
+
 						JRadioButton missScar = new JRadioButton("Miss Scarlet");
 						btnGrp.add(missScar);
 						missScar.addActionListener(new ActionListener() {
@@ -89,7 +90,7 @@ public class GUI extends JFrame {
 							}
 						});
 						playerSelect.add(missScar);
-						
+
 						JRadioButton colMust = new JRadioButton("Col. Mustard");
 						btnGrp.add(colMust);
 						colMust.addActionListener(new ActionListener() {
@@ -98,7 +99,7 @@ public class GUI extends JFrame {
 							}
 						});
 						playerSelect.add(colMust);
-						
+
 						JRadioButton mrsWhite = new JRadioButton("Mrs. White");
 						btnGrp.add(mrsWhite);
 						mrsWhite.addActionListener(new ActionListener() {
@@ -107,7 +108,7 @@ public class GUI extends JFrame {
 							}
 						});
 						playerSelect.add(mrsWhite);
-						
+
 						JRadioButton mrGreen = new JRadioButton("Mr. Green");
 						btnGrp.add(mrGreen);
 						mrGreen.addActionListener(new ActionListener() {
@@ -116,7 +117,7 @@ public class GUI extends JFrame {
 							}
 						});
 						playerSelect.add(mrGreen);
-						
+
 						JRadioButton mrsPea = new JRadioButton("Mrs. Peacock");
 						btnGrp.add(mrsPea);
 						mrsPea.addActionListener(new ActionListener() {
@@ -125,7 +126,7 @@ public class GUI extends JFrame {
 							}
 						});
 						playerSelect.add(mrsPea);
-						
+
 						JRadioButton profPlum = new JRadioButton("Prof. Plum");
 						btnGrp.add(profPlum);
 						profPlum.addActionListener(new ActionListener() {
@@ -134,7 +135,7 @@ public class GUI extends JFrame {
 							}
 						});
 						playerSelect.add(profPlum);
-						
+
 						playerName.addActionListener(new ActionListener(){
 							public void actionPerformed(ActionEvent e){
 								if(btnGrp.getSelection() != null) {
@@ -145,8 +146,8 @@ public class GUI extends JFrame {
 											selectPlayerCount++;
 											playerName.setText("");
 										}
-										else{	
-										JOptionPane.showMessageDialog(playerName, "You cant have the same name as someone else", 
+										else{
+										JOptionPane.showMessageDialog(playerName, "You cant have the same name as someone else",
 												"Bad Name",JOptionPane.ERROR_MESSAGE);
 										}
 									}
@@ -156,7 +157,7 @@ public class GUI extends JFrame {
 								    	mainMenu.dispose();
 								    	game.setup(playerList);
 									}
-								}		
+								}
 							 }
 						});
 						playerSelect.setVisible(true);
@@ -171,58 +172,58 @@ public class GUI extends JFrame {
 		    }
 		});
 		panel.add(start);
-		
-		
+
+
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
-		
+
 		JButton rules = new JButton("Rules");
 		rules.setAlignmentX(Component.CENTER_ALIGNMENT);
 		rules.setFont(new Font(title.getFont().getName(),title.getFont().getStyle(), 25));
 		rules.setMaximumSize(new Dimension(150, 40));
-		rules.addActionListener(new ActionListener(){  
-		    public void actionPerformed(ActionEvent e){ 
+		rules.addActionListener(new ActionListener(){
+		    public void actionPerformed(ActionEvent e){
 		    	JOptionPane.showMessageDialog(panel, Cluedo.checkForHelp(), "Rules", JOptionPane.PLAIN_MESSAGE);
 		    }
 		});
 		panel.add(rules);
-		
+
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
-		
+
 		JButton exit = new JButton("Quit");
 		exit.setAlignmentX(Component.CENTER_ALIGNMENT);
 		exit.setFont(new Font(title.getFont().getName(),title.getFont().getStyle(), 25));
 		exit.setMaximumSize(new Dimension(150, 40));
-		exit.addActionListener(new ActionListener(){  
-		    public void actionPerformed(ActionEvent e){ 
+		exit.addActionListener(new ActionListener(){
+		    public void actionPerformed(ActionEvent e){
 		    	mainMenu.setVisible(false);
 		    	mainMenu.dispose();
 		    	System.exit(0);
 		    }
 		});
-		
+
 		panel.add(exit);
-		
+
 		mainMenu.add(panel);
-		
+
 		mainMenu.pack();
 		mainMenu.setVisible(true);
 	}
-	
-	
+
+
 	/**
 	 * set up GUI for the actual game of cluedo and controls it
 	 */
 	public void playGame() {
 		gameFrame = new JFrame("Cluedo");
-		
+
 		Color back = new Color(224, 180, 94);
 		Border black = BorderFactory.createLineBorder(Color.BLACK);
-		
+
 		gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gameFrame.setPreferredSize(new Dimension(770,710));
 		gameFrame.setLayout(new BorderLayout());
 		gameFrame.setResizable(false);
-		
+
 		JMenuBar menu = new JMenuBar();
 		menu.setPreferredSize(new Dimension(gameFrame.getWidth(),30));
 		JMenuItem file = new JMenuItem("File");
@@ -230,14 +231,14 @@ public class GUI extends JFrame {
 		menu.add(file);
 		menu.add(game);
 		gameFrame.add(menu, BorderLayout.PAGE_START);
-		
-		
+
+
 		JPanel leftSide = new JPanel();
 		leftSide.setBorder(black);
 		leftSide.setPreferredSize(new Dimension(100,0));
 		leftSide.setBackground(back);
 		gameFrame.add(leftSide, BorderLayout.LINE_START);
-		
+
 		JPanel boardDisplay = new JPanel(new GridLayout(25,24));
 		Cell[][] board = boardObj.getBoardArray();
 		ImageIcon cellPic;
@@ -263,7 +264,7 @@ public class GUI extends JFrame {
 		}
 		boardDisplay.setBorder(black);
 		gameFrame.add(boardDisplay, BorderLayout.CENTER);
-		
+
 		boardDisplay.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {}
@@ -276,38 +277,40 @@ public class GUI extends JFrame {
 			@Override
 			public void mousePressed(MouseEvent e) {}
 		  });
-		
+
 		JPanel rightSide = new JPanel();
 		rightSide.setBorder(black);
 		rightSide.setPreferredSize(new Dimension(100,0));
 		rightSide.setBackground(back);
 		gameFrame.add(rightSide, BorderLayout.LINE_END);
-		
+
 		JPanel botDisp = new JPanel();
 		botDisp.setLayout(new GridLayout(3,1));
-		
+
 		botlb1 = new JLabel();
 		botlb1.setFont(new Font(botlb1.getFont().getName(),botlb1.getFont().getStyle(), 18));
 		botlb1.setHorizontalAlignment(SwingConstants.CENTER);
 		botDisp.add(botlb1);
-		
+
 		botlb2 = new JLabel();
 		botlb2.setFont(new Font(botlb2.getFont().getName(),botlb2.getFont().getStyle(), 18));
 		botlb2.setHorizontalAlignment(SwingConstants.CENTER);
 		botDisp.add(botlb2);
-		
+
 		botlb3 = new JLabel();
 		botlb3.setFont(new Font(botlb3.getFont().getName(),botlb3.getFont().getStyle(), 18));
 		botlb3.setHorizontalAlignment(SwingConstants.CENTER);
 		botDisp.add(botlb3);
-		
+
 		botDisp.setPreferredSize(new Dimension(gameFrame.getWidth(),100));
 		gameFrame.add(botDisp, BorderLayout.PAGE_END);
-		
+
+		setKeys();
+
 		gameFrame.pack();
 		gameFrame.setVisible(true);
 	}
-	
+
 	/**
 	 * Shows the hand of the specified player
 	 * @param player
@@ -315,7 +318,7 @@ public class GUI extends JFrame {
 	public void showHand(Player player) {
 		JPanel dispHand = new JPanel();
 		List<Card> hand = player.getHand();
-		
+
 		GridLayout grid = new GridLayout(1,hand.size());
 		dispHand.setLayout(grid);
 		for(Card card : hand) {
@@ -324,88 +327,98 @@ public class GUI extends JFrame {
 		JOptionPane.showMessageDialog(gameFrame,"Press 'OK' to show "+player.dispName()+"'s hand","Displaying Hand", JOptionPane.PLAIN_MESSAGE);
 		JOptionPane.showMessageDialog(gameFrame, dispHand, player.dispName()+"'s hand", JOptionPane.PLAIN_MESSAGE);
 	}
-	
+
+	public void setKeys() {
+		gameFrame.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				System.out.println("Click");
+			}
+
+			  public void keyReleased(KeyEvent e) {
+				  System.out.println("Release");
+
+			    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
+			    	System.out.println("east");
+			    	if(currentMoveCount < currentRoll) {
+				    	if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("w")) {
+				    		currentMove[currentMoveCount-1] = "";
+				    		currentMoveCount--;
+				    	}
+				    	else {
+				    		currentMove[currentMoveCount] = "e";
+				    		currentMoveCount++;
+				    	}
+			    	}
+			    	game.highLightMove(currentMove);
+			    }
+			    else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
+			    	System.out.println("west");
+			    	if(currentMoveCount < currentRoll) {
+				    	if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("e")) {
+				    		currentMove[currentMoveCount-1] = "";
+				    		currentMoveCount--;
+				    	}
+				    	else {
+				    		currentMove[currentMoveCount] = "w";
+				    		currentMoveCount++;
+				    	}
+			    	}
+			    	game.highLightMove(currentMove);
+			    }
+			    else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
+			    	System.out.println("south");
+			    	if(currentMoveCount < currentRoll) {
+				    	if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("n")) {
+				    		currentMove[currentMoveCount-1] = "";
+				    		currentMoveCount--;
+				    	}
+				    	else {
+				    		currentMove[currentMoveCount] = "s";
+				    		currentMoveCount++;
+				    	}
+			    	}
+			    	game.highLightMove(currentMove);
+			    }
+			    else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
+			    	System.out.println("north");
+			    	if(currentMoveCount < currentRoll) {
+				    	if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("s")) {
+				    		currentMove[currentMoveCount-1] = "";
+				    		currentMoveCount--;
+				    	}
+				    	else {
+				    		currentMove[currentMoveCount] = "n";
+				    		currentMoveCount++;
+				    	}
+			    	}
+			    	game.highLightMove(currentMove);
+			    }
+			    else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			    	System.out.println("enter");
+			    	if(game.highLightMove(currentMove)) moveEntered = true;
+			    }
+			  }
+
+			  public void keyTyped(KeyEvent e) {}
+			});
+	}
+
 	public void playTurn(Player currPlayer, int roll) {
-		
 		botlb1.setText(currPlayer.dispName()+" rolled a "+roll+"!!");
 		botlb2.setText("Use the arrow keys or 'w''a''s''d' keys to choose your move\n");
 		botlb3.setText("and press enter when a valid move is choosen");
-		
+
 		currentMove = new String[roll];
 		for(int i=0; i <roll;i++) {
 			currentMove[i] = "";
 		}
+		currentRoll = roll;
 		currentMoveCount = 0;
 		moveEntered = false;
-		
-		gameFrame.addKeyListener(new KeyListener() {
-		public void keyPressed(KeyEvent e) {}
-
-		  public void keyReleased(KeyEvent e) {
-		    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
-		    	System.out.println("east");
-		    	if(currentMove[currentMoveCount-1].equals("w")) {
-		    		currentMove[currentMoveCount-1] = "";
-		    		currentMoveCount--;
-		    	}
-		    	else {
-		    		currentMove[currentMoveCount] = "e";
-		    		currentMoveCount++;
-		    	}
-		    }
-		    else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
-		    	System.out.println("west");
-		    	if(currentMove[currentMoveCount-1].equals("e")) {
-		    		currentMove[currentMoveCount-1] = "";
-		    		currentMoveCount--;
-		    	}
-		    	else {
-		    		currentMove[currentMoveCount] = "w";
-		    		currentMoveCount++;
-		    	}
-		    }
-		    else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
-		    	System.out.println("south");
-		    	if(currentMove[currentMoveCount-1].equals("n")) {
-		    		currentMove[currentMoveCount-1] = "";
-		    		currentMoveCount--;
-		    	}
-		    	else {
-		    		currentMove[currentMoveCount] = "s";
-		    		currentMoveCount++;
-		    	}
-		    }
-		    else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
-		    	System.out.println("north");
-		    	if(currentMove[currentMoveCount-1].equals("n")) {
-		    		currentMove[currentMoveCount-1] = "";
-		    		currentMoveCount--;
-		    	}
-		    	else {
-		    		currentMove[currentMoveCount] = "n";
-		    		currentMoveCount++;
-		    	}
-		    }
-		    else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-		    	System.out.println("enter");
-		    	if(game.highLightMove(currentMove)) moveEntered = true;
-		    }
-		  }
-
-		  public void keyTyped(KeyEvent e) {}
-		});
-		
-//		while(!moveEntered) {
-//			
-//			game.highLightMove(currentMove);
-//		}
-//		
-		
-		
 	}
-	
-	
-	
+
+
+
 	public void updateBoard() {
 		Cell[][] board = boardObj.getBoardArray();
 		ImageIcon cellPic;
@@ -431,42 +444,42 @@ public class GUI extends JFrame {
 				else if(board[j][i].isRedHighlight()) {
 					label.setBorder(redBorder);
 				}
-				
+
 				drawBoard[j][i] = label;
 			}
 		}
 	}
-	
+
 	public void deathNotice(Player player) {
 		botlb1.setText("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		botlb2.setText(player.dispName()+" was removed from the game due to a false accusation");
 		botlb3.setText("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 	}
-	
+
 	/**
 	 * asks current player if they would like to make a suggestion
 	 * @param currPlayer
 	 * @return true if yes, false if no
 	 */
 	public boolean askToSuggest(Player currPlayer) {
-		int confirm = JOptionPane.showConfirmDialog(gameFrame, "Would "+currPlayer.dispName()+" like to make a suggestion?" , 
+		int confirm = JOptionPane.showConfirmDialog(gameFrame, "Would "+currPlayer.dispName()+" like to make a suggestion?" ,
 				"Make Suggestion?", JOptionPane.YES_NO_OPTION);
 		if(confirm == JOptionPane.YES_OPTION) return true;
 		return false;
 	}
-	
+
 	/**
 	 * asks current player if they would like to make an accusation
 	 * @param currPlayer
 	 * @return true if yes, false if no
 	 */
 	public boolean askToAccuse(Player currPlayer) {
-		int confirm = JOptionPane.showConfirmDialog(gameFrame, "Would "+currPlayer.dispName()+" like to make an accusation?" , 
+		int confirm = JOptionPane.showConfirmDialog(gameFrame, "Would "+currPlayer.dispName()+" like to make an accusation?" ,
 				"Make Accusation?", JOptionPane.YES_NO_OPTION);
 		if(confirm == JOptionPane.YES_OPTION) return true;
 		return false;
 	}
-	
+
 	/**
 	 * collects the currents players suggestion
 	 * @param currPlayer
@@ -475,7 +488,7 @@ public class GUI extends JFrame {
 	public boolean makeSuggestion(Player currPlayer) {
 		String[] suggest = new String[3];
 		accusedCharacter = "";
-		
+
 		JPanel characterSelect = new JPanel();
 		ButtonGroup btnGrp = new ButtonGroup();
 		GridLayout grid = new GridLayout(4,game.getCharacters().size()/4);
@@ -500,9 +513,9 @@ public class GUI extends JFrame {
 			return makeSuggestion(currPlayer);
 		}
 		suggest[0] = accusedCharacter;
-		
+
 		suggestedWeapon = "";
-		
+
 		JPanel weaponSelect = new JPanel();
 		btnGrp = new ButtonGroup();
 		grid = new GridLayout(4,game.getWeapons().size()/4);
@@ -527,9 +540,9 @@ public class GUI extends JFrame {
 			return makeSuggestion(currPlayer);
 		}
 		suggest[1] = suggestedWeapon;
-		
+
 		suggestedRoom = "";
-		
+
 		JPanel roomSelect = new JPanel();
 		btnGrp = new ButtonGroup();
 		grid = new GridLayout(4,game.getRooms().size()/4);
@@ -554,10 +567,10 @@ public class GUI extends JFrame {
 			return makeSuggestion(currPlayer);
 		}
 		suggest[2] = suggestedRoom;
-		
+
 		return game.checkSuggestion(suggest);
 	}
-	
+
 	/**
 	 * collects the currents players accusation
 	 * @param currPlayer
@@ -565,9 +578,9 @@ public class GUI extends JFrame {
 	 */
 	public boolean makeAccusation(Player currPlayer) {
 		String[] accuse = new String[3];
-		
+
 		accusedCharacter = "";
-		
+
 		JPanel characterSelect = new JPanel();
 		ButtonGroup btnGrp = new ButtonGroup();
 		GridLayout grid = new GridLayout(4,game.getCharacters().size()/4);
@@ -592,9 +605,9 @@ public class GUI extends JFrame {
 			return makeAccusation(currPlayer);
 		}
 		accuse[0] = accusedCharacter;
-		
+
 		suggestedWeapon = "";
-		
+
 		JPanel weaponSelect = new JPanel();
 		btnGrp = new ButtonGroup();
 		grid = new GridLayout(4,game.getWeapons().size()/4);
@@ -619,9 +632,9 @@ public class GUI extends JFrame {
 			return makeAccusation(currPlayer);
 		}
 		accuse[1] = suggestedWeapon;
-		
+
 		suggestedRoom = "";
-		
+
 		JPanel roomSelect = new JPanel();
 		btnGrp = new ButtonGroup();
 		grid = new GridLayout(4,game.getRooms().size()/4);
@@ -646,11 +659,14 @@ public class GUI extends JFrame {
 			return makeAccusation(currPlayer);
 		}
 		accuse[2] = suggestedRoom;
-		
+
 		return game.checkAccusation(accuse);
 	}
 
-	
+	public boolean moveComplete() {
+		return moveEntered;
+	}
+
 	public void setHighlighted(Set<Cell> highlight) {
 		this.highlightedCell = highlight;
 	}

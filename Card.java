@@ -8,13 +8,13 @@ public class Card {
 	private ImageIcon img;
 	private ImageIcon card;
 	private ImageIcon roomImg;
-	
+
 	public Card(String type, String id, ImageIcon card) {
 		this.type = type;
 		this.id = id;
 		this.card = card;
 	}
-	
+
 	public Card(String type, String id, int startRow, int startCol, ImageIcon img, ImageIcon card, ImageIcon roomImg) {
 		this.type = type;
 		this.id = id;
@@ -47,7 +47,7 @@ public class Card {
 	public ImageIcon getCardImg() {
 		return card;
 	}
-	
+
 	public ImageIcon getRoomImg() {
 		return roomImg;
 	}

@@ -15,7 +15,7 @@ public class Cluedo {
 	private String winningClaim;
 	private boolean wonFromAccu;
 	private GUI display;
-	
+
 	/**
 	 * constructor used for testing purposes
 	 * @param startingPlayer
@@ -25,7 +25,7 @@ public class Cluedo {
 		this.currentPlayer = startingPlayer;
 		this.board = board;
 	}
-	
+
 	/**
 	 * normal constructor
 	 */
@@ -37,7 +37,7 @@ public class Cluedo {
 		board = new Board();
 		display = new GUI(this,board);
 	}
-	
+
 	/**
 	 * Sets up the start of the game by distinguishing the amount of players
 	 * randomly generating a solution
@@ -58,16 +58,16 @@ public class Cluedo {
 		}
 		Collections.sort(players);
 		setSolution();
-		
+
 		List<Card> allCards = new ArrayList<Card>();
 		allCards.addAll(characters);
 		allCards.addAll(weapons);
 		allCards.addAll(rooms);
-		
+
 		allCards.remove(murderer);
 		allCards.remove(murderRoom);
 		allCards.remove(murderWeapon);
-		
+
 		while(!allCards.isEmpty()) {
 			for(Player player : players) {
 				Collections.shuffle(allCards);
@@ -76,39 +76,48 @@ public class Cluedo {
 				if(allCards.isEmpty()) break;
 			}
 		}
-		
+
 		display.playGame();
 		for(Player player : players) {
 			display.showHand(player);
 		}
 		//display.playTurn(currentPlayer, 50);
-		
+
 		tick();
 	}
-	
+
 	/**
 	 * main loop for running game, each loop turn (a tick)
 	 * @param sc
 	 */
 	public void tick() {
 		int playerTurn = 0;
-		while(true) {
+		//while(true) {
 			System.out.println("looped");
 			currentPlayer = players.get(playerTurn);
 			if(!currentPlayer.getStatus()) {
 				if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
 					exitRoom();
-				}	
+
+				}
 				display.playTurn(currentPlayer,rollDice());
+//				while(!display.moveComplete()) {
+//					System.out.println("check");
+//					try {
+//						Thread.sleep(500);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//				}
 				if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
 					if(display.askToSuggest(currentPlayer)) {
 							if(display.makeSuggestion(currentPlayer)) {
-									break;
+									//break;
 							}
 					}
 					if(display.askToAccuse(currentPlayer)) {
 							if(display.makeAccusation(currentPlayer)) {
-								break;
+								//break;
 							}
 							enterRoom("None",currentPlayer);
 							display.deathNotice(currentPlayer);
@@ -118,11 +127,11 @@ public class Cluedo {
 			}
 			playerTurn++;
 			if(playerTurn == players.size()) playerTurn = 0;
-		}
+		//}
 		if(wonFromAccu) System.out.println(currentPlayer.getName() + " won the game with the accusation: " + winningClaim);
 		else System.out.println(currentPlayer.getName() + " won the game with the suggestion: " + winningClaim);
 	}
-	
+
 	/**
 	 * randomly selects a murderer, murderWeapon and murderRoom
 	 * by shuffling the appropriate array list and getting the first element
@@ -131,14 +140,14 @@ public class Cluedo {
 	public void setSolution() {
 		Collections.shuffle(characters);
 		murderer = characters.get(0);
-		
+
 		Collections.shuffle(weapons);
 		murderWeapon = weapons.get(0);
-		
+
 		Collections.shuffle(rooms);
 		murderRoom = rooms.get(0);
 	}
-	
+
 	/**
 	 * generates the character array list which will be used to distribute cards later
 	 */
@@ -151,7 +160,7 @@ public class Cluedo {
 		characters.add(new Card("character","Mrs. Peacock",23,6, new ImageIcon(getClass().getResource("Peacock.png")),new ImageIcon(getClass().getResource("MrsPeacockCard.png")), new ImageIcon(getClass().getResource("PeacockRoom.png"))));
 		characters.add(new Card("character","Prof. Plum",23,19, new ImageIcon(getClass().getResource("Plum.png")),new ImageIcon(getClass().getResource("ProfPlumCard.png")), new ImageIcon(getClass().getResource("PlumRoom.png"))));
 	}
-	
+
 	/**
 	 * generates the weapons array list which will be used to distribute cards later
 	 */
@@ -164,7 +173,7 @@ public class Cluedo {
 		weapons.add(new Card("weapon","Rope",new ImageIcon(getClass().getResource("rope.png"))));
 		weapons.add(new Card("weapon","Wrench",new ImageIcon(getClass().getResource("wrench.png"))));
 	}
-	
+
 	/**
 	 * generates the rooms array list which will be used to distribute cards later
 	 */
@@ -180,7 +189,7 @@ public class Cluedo {
 		rooms.add(new Card("room","Hall",new ImageIcon(getClass().getResource("hall.png"))));
 		rooms.add(new Card("room","Study",new ImageIcon(getClass().getResource("study.png"))));
 	}
-	
+
 	/**
 	 * generates to random integers between 1 and 6 and adds them together
 	 * @return
@@ -189,9 +198,9 @@ public class Cluedo {
 		Random rand = new Random();
 		return (rand.nextInt(6)+1) + (rand.nextInt(6)+1);
 	}
-	
+
 	/**
-	 * displays options for exiting room and moves player to selected exit 
+	 * displays options for exiting room and moves player to selected exit
 	 * @param sc
 	 */
 	public void exitRoom() {
@@ -214,7 +223,7 @@ public class Cluedo {
 		}
 		display.updateBoard();
 	}
-	
+
 	/**
 	 * makes the given player enter the room putting them in the first available display
 	 * spot for that room
@@ -236,7 +245,7 @@ public class Cluedo {
 		}
 		display.updateBoard();
 	}
-	
+
 	/**
 	 * makes sure that the given move is a valid one, ie follows correct format
 	 * @param sc
@@ -262,7 +271,7 @@ public class Cluedo {
 //				}
 //		}
 //	}
-	
+
 	/**
 	 * applies the given move to the current character, checking along the way if it is valid
 	 * (doesn't go through walls, over other people, visit the same square twice in one move)
@@ -302,7 +311,7 @@ public class Cluedo {
 					else {
 						break;
 					}
-					
+
 				}
 			}
 			else if(move[i].equals("s")) {
@@ -328,7 +337,7 @@ public class Cluedo {
 					else {
 						break;
 					}
-					
+
 				}
 			}
 			else if(move[i].equals("w")) {
@@ -354,7 +363,7 @@ public class Cluedo {
 					else {
 						break;
 					}
-					
+
 				}
 			}
 			else if(move[i].equals("e")) {
@@ -389,22 +398,24 @@ public class Cluedo {
 		highlightRed(visited);
 		return false;
 	}
-	
+
 	public void highlightRed(Set<Cell> highlight) {
 		for(Cell cell : highlight) {
 			cell.setRedHighLight();
 		}
 		display.setHighlighted(highlight);
+		display.updateBoard();
 	}
-	
+
 	public void highlightGreen(Set<Cell> highlight) {
 		for(Cell cell : highlight) {
 			cell.setGreenHighlight();
 		}
 		display.setHighlighted(highlight);
+		display.updateBoard();
 	}
-	
-	
+
+
 	/**
 	 * checks whether the given suggestion is correct or not, making sure that the suggestion is done in
 	 * the correct format at the same time
@@ -442,7 +453,7 @@ public class Cluedo {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * checks whether the given accusation is correct or not, making sure that the accusation is done in
 	 * the correct format at the same time
@@ -461,42 +472,42 @@ public class Cluedo {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * print a list of rules when a user requests them
 	 * @param sc
 	 */
 	public static String checkForHelp() {
-			return  "Every character, weapon and room is represented by a card in the game. Before the game starts, one\n" + 
-					"character, one weapon, and one room card are selected at random by the program. This selection represents\n" + 
-					"the murder circumstances, i.e., the solution that players need to figure out during game play.\n" + 
-					"The remaining weapon, room and character cards are then randomly distributed to the players.\n" + 
+			return  "Every character, weapon and room is represented by a card in the game. Before the game starts, one\n" +
+					"character, one weapon, and one room card are selected at random by the program. This selection represents\n" +
+					"the murder circumstances, i.e., the solution that players need to figure out during game play.\n" +
+					"The remaining weapon, room and character cards are then randomly distributed to the players.\n" +
 					"Some players may end up with more cards than others. At the start of the game, each player is asked\n" +
 					"to look at their hand, while the other players look away. As the only other time a player's cards are\n"+
 					"when a suggestion is made, each player should take note of what they have."+
-					"\n" + 
-					"Players then take it in turns to roll from 2-12 and type the direction the player wants to move\n" + 
-					"in, equal to the total rolled. Diagonal movement is not allowed and no space may be used\n" + 
-					"twice during one turn. When a player enters a room, they do not need to use any remaining moves\n" + 
-					"they have left. They may then hypothesise about the murder circumstances by making a suggestion\n" + 
-					"which comprises the room they are in, a character and a weapon. This is typed in the fashion of (character),(weapon),(room).\n" + 
-					"If the character and weapon named in the suggestion are not in that room yet, they are now moved into the room.\n" + 
-					"When a suggestion is made, the program checks, in a clockwise fashion, starting from the current player,\n" + 
-					"for players who can refute the suggestion. A suggestion is refuted by producing a card that matches one of\n" + 
-					"the named murder circumstances (as such a card cannot be in the solution envelope). A refutation\n" + 
-					"has all the other players look away from the screen while the player shows the card which matches. If a player has\n" + 
-					"multiple refutation cards, it is their choice which one they pick. If no player can produce a refutation, the named\n" + 
-					"murder circumstances are a potential solution candidate that may or may not be used to make an accusation\n" + 
-					"later on (by any player).\n" + 
-					"\n" + 
-					"An accusation comprises a character, a weapon, and a room (which can be any room, not just the\n" + 
-					"one the player making the accusation may be in). It is typed in the exact same way as a suggestion.\n" + 
-					"If the accusation made by a player exactly matches the actual murder circumstances (the program checks\n" + 
-					"if the accusation and solution match) the player wins, otherwise the player is excluded from making\n" + 
+					"\n" +
+					"Players then take it in turns to roll from 2-12 and type the direction the player wants to move\n" +
+					"in, equal to the total rolled. Diagonal movement is not allowed and no space may be used\n" +
+					"twice during one turn. When a player enters a room, they do not need to use any remaining moves\n" +
+					"they have left. They may then hypothesise about the murder circumstances by making a suggestion\n" +
+					"which comprises the room they are in, a character and a weapon. This is typed in the fashion of (character),(weapon),(room).\n" +
+					"If the character and weapon named in the suggestion are not in that room yet, they are now moved into the room.\n" +
+					"When a suggestion is made, the program checks, in a clockwise fashion, starting from the current player,\n" +
+					"for players who can refute the suggestion. A suggestion is refuted by producing a card that matches one of\n" +
+					"the named murder circumstances (as such a card cannot be in the solution envelope). A refutation\n" +
+					"has all the other players look away from the screen while the player shows the card which matches. If a player has\n" +
+					"multiple refutation cards, it is their choice which one they pick. If no player can produce a refutation, the named\n" +
+					"murder circumstances are a potential solution candidate that may or may not be used to make an accusation\n" +
+					"later on (by any player).\n" +
+					"\n" +
+					"An accusation comprises a character, a weapon, and a room (which can be any room, not just the\n" +
+					"one the player making the accusation may be in). It is typed in the exact same way as a suggestion.\n" +
+					"If the accusation made by a player exactly matches the actual murder circumstances (the program checks\n" +
+					"if the accusation and solution match) the player wins, otherwise the player is excluded from making\n" +
 					"further suggestions or accusations. This means the player will continue to refute suggestions by others\n" +
 					"but cannot win the game anymore.\n" ;
 	}
-	
+
 	/**
 	 * finds which player can refute the suggested person
 	 * @param suggestedPerson
@@ -512,7 +523,7 @@ public class Cluedo {
 			}
 		}
 	}
-	
+
 	/**
 	 * finds which player can refute the suggested Weapon
 	 * @param suggestedPerson
@@ -530,7 +541,7 @@ public class Cluedo {
 			}
 		}
 	}
-	
+
 	/**
 	 * finds which player can refute the suggested Room
 	 * @param suggestedPerson
@@ -572,7 +583,7 @@ public class Cluedo {
 	public List<Card> getRooms() {
 		return rooms;
 	}
-	
+
 	public static void main(String[] args) {
 		new Cluedo();
 	}
