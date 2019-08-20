@@ -26,6 +26,11 @@ public class GUI extends JFrame {
 	private boolean moveEntered;
 	private Set<Cell> highlightedCell;
 	private int currentRoll;
+	private int cellX;
+	private int cellY;
+	private ImageIcon cellPic;
+	private JLabel label;
+	private Cell[][] board;
 
 
 	public GUI(Cluedo game, Board board){
@@ -64,7 +69,7 @@ public class GUI extends JFrame {
 		start.setFont(new Font(title.getFont().getName(),title.getFont().getStyle(), 25));
 		start.setMaximumSize(new Dimension(150, 40));
 		start.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e){
+			public void actionPerformed(ActionEvent e){
 				String inp = JOptionPane.showInputDialog(panel,"Please enter the amount of players (3-6)");
 				try {
 					int noPlayers = Integer.parseInt(inp);
@@ -147,18 +152,18 @@ public class GUI extends JFrame {
 											playerName.setText("");
 										}
 										else{
-										JOptionPane.showMessageDialog(playerName, "You cant have the same name as someone else",
-												"Bad Name",JOptionPane.ERROR_MESSAGE);
+											JOptionPane.showMessageDialog(playerName, "You cant have the same name as someone else",
+													"Bad Name",JOptionPane.ERROR_MESSAGE);
 										}
 									}
 									if(selectPlayerCount == noPlayers) {
 										playerSelect.setVisible(false);
 										mainMenu.setVisible(false);
-								    	mainMenu.dispose();
-								    	game.setup(playerList);
+										mainMenu.dispose();
+										game.setup(playerList);
 									}
 								}
-							 }
+							}
 						});
 						playerSelect.setVisible(true);
 						JOptionPane.showMessageDialog(panel, playerSelect, "Player Select", JOptionPane.PLAIN_MESSAGE);
@@ -169,7 +174,7 @@ public class GUI extends JFrame {
 				catch(NumberFormatException error){
 					JOptionPane.showMessageDialog(panel, "You must enter a valid number between 3-6", "Bad Number",JOptionPane.ERROR_MESSAGE);
 				}
-		    }
+			}
 		});
 		panel.add(start);
 
@@ -181,9 +186,9 @@ public class GUI extends JFrame {
 		rules.setFont(new Font(title.getFont().getName(),title.getFont().getStyle(), 25));
 		rules.setMaximumSize(new Dimension(150, 40));
 		rules.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e){
-		    	JOptionPane.showMessageDialog(panel, Cluedo.checkForHelp(), "Rules", JOptionPane.PLAIN_MESSAGE);
-		    }
+			public void actionPerformed(ActionEvent e){
+				JOptionPane.showMessageDialog(panel, Cluedo.checkForHelp(), "Rules", JOptionPane.PLAIN_MESSAGE);
+			}
 		});
 		panel.add(rules);
 
@@ -194,11 +199,11 @@ public class GUI extends JFrame {
 		exit.setFont(new Font(title.getFont().getName(),title.getFont().getStyle(), 25));
 		exit.setMaximumSize(new Dimension(150, 40));
 		exit.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e){
-		    	mainMenu.setVisible(false);
-		    	mainMenu.dispose();
-		    	System.exit(0);
-		    }
+			public void actionPerformed(ActionEvent e){
+				mainMenu.setVisible(false);
+				mainMenu.dispose();
+				System.exit(0);
+			}
 		});
 
 		panel.add(exit);
@@ -240,9 +245,27 @@ public class GUI extends JFrame {
 		gameFrame.add(leftSide, BorderLayout.LINE_START);
 
 		JPanel boardDisplay = new JPanel(new GridLayout(25,24));
-		Cell[][] board = boardObj.getBoardArray();
-		ImageIcon cellPic;
-		JLabel label;
+		board = boardObj.getBoardArray();
+		int cellWidth = 23;
+		boardDisplay.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				final int clickedCellY = (int)(e.getY()/cellWidth);
+				final int clickedCellX = (int)((e.getX() - 10)/cellWidth);
+				cellX = clickedCellX;
+				cellY = clickedCellY;
+				System.out.println(cellX);
+				System.out.println(cellY);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+		});
 		for (int i = 0; i < 25; i++) {
 			for (int j = 0; j < 24; j++) {
 				if (board[j][i].occupied) {
@@ -256,8 +279,14 @@ public class GUI extends JFrame {
 				if (board[j][i].occupied) {
 					label.setToolTipText(board[j][i].getPlayer().dispName());
 				}
-				Border border = BorderFactory.createLineBorder(boardDisplay.getBackground(), 1);
-				label.setBorder(border);
+				if (j == cellY && i == cellX) {
+					Border border = BorderFactory.createLineBorder(Color.BLUE, 1);
+					label.setBorder(border);
+				}
+				else {
+					Border border = BorderFactory.createLineBorder(boardDisplay.getBackground(), 1);
+					label.setBorder(border);
+				}
 				boardDisplay.add(label);
 				drawBoard[j][i] = label;
 			}
@@ -265,18 +294,7 @@ public class GUI extends JFrame {
 		boardDisplay.setBorder(black);
 		gameFrame.add(boardDisplay, BorderLayout.CENTER);
 
-		boardDisplay.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {}
-			@Override
-			public void mouseReleased(MouseEvent e) {}
-			@Override
-			public void mouseEntered(MouseEvent e) {}
-			@Override
-			public void mouseExited(MouseEvent e) {}
-			@Override
-			public void mousePressed(MouseEvent e) {}
-		  });
+
 
 		JPanel rightSide = new JPanel();
 		rightSide.setBorder(black);
@@ -334,73 +352,73 @@ public class GUI extends JFrame {
 				System.out.println("Click");
 			}
 
-			  public void keyReleased(KeyEvent e) {
-				  System.out.println("Release");
+			public void keyReleased(KeyEvent e) {
+				System.out.println("Release");
 
-			    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
-			    	System.out.println("east");
-			    	if(currentMoveCount < currentRoll) {
-				    	if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("w")) {
-				    		currentMove[currentMoveCount-1] = "";
-				    		currentMoveCount--;
-				    	}
-				    	else {
-				    		currentMove[currentMoveCount] = "e";
-				    		currentMoveCount++;
-				    	}
-			    	}
-			    	game.highLightMove(currentMove);
-			    }
-			    else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
-			    	System.out.println("west");
-			    	if(currentMoveCount < currentRoll) {
-				    	if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("e")) {
-				    		currentMove[currentMoveCount-1] = "";
-				    		currentMoveCount--;
-				    	}
-				    	else {
-				    		currentMove[currentMoveCount] = "w";
-				    		currentMoveCount++;
-				    	}
-			    	}
-			    	game.highLightMove(currentMove);
-			    }
-			    else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
-			    	System.out.println("south");
-			    	if(currentMoveCount < currentRoll) {
-				    	if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("n")) {
-				    		currentMove[currentMoveCount-1] = "";
-				    		currentMoveCount--;
-				    	}
-				    	else {
-				    		currentMove[currentMoveCount] = "s";
-				    		currentMoveCount++;
-				    	}
-			    	}
-			    	game.highLightMove(currentMove);
-			    }
-			    else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
-			    	System.out.println("north");
-			    	if(currentMoveCount < currentRoll) {
-				    	if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("s")) {
-				    		currentMove[currentMoveCount-1] = "";
-				    		currentMoveCount--;
-				    	}
-				    	else {
-				    		currentMove[currentMoveCount] = "n";
-				    		currentMoveCount++;
-				    	}
-			    	}
-			    	game.highLightMove(currentMove);
-			    }
-			    else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			    	System.out.println("enter");
-			    	if(game.highLightMove(currentMove)) moveEntered = true;
-			    }
-			  }
+				if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
+					System.out.println("east");
+					if(currentMoveCount < currentRoll) {
+						if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("w")) {
+							currentMove[currentMoveCount-1] = "";
+							currentMoveCount--;
+						}
+						else {
+							currentMove[currentMoveCount] = "e";
+							currentMoveCount++;
+						}
+					}
+					game.highLightMove(currentMove);
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
+					System.out.println("west");
+					if(currentMoveCount < currentRoll) {
+						if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("e")) {
+							currentMove[currentMoveCount-1] = "";
+							currentMoveCount--;
+						}
+						else {
+							currentMove[currentMoveCount] = "w";
+							currentMoveCount++;
+						}
+					}
+					game.highLightMove(currentMove);
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
+					System.out.println("south");
+					if(currentMoveCount < currentRoll) {
+						if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("n")) {
+							currentMove[currentMoveCount-1] = "";
+							currentMoveCount--;
+						}
+						else {
+							currentMove[currentMoveCount] = "s";
+							currentMoveCount++;
+						}
+					}
+					game.highLightMove(currentMove);
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
+					System.out.println("north");
+					if(currentMoveCount < currentRoll) {
+						if(currentMoveCount > 0 && currentMove[currentMoveCount-1].equals("s")) {
+							currentMove[currentMoveCount-1] = "";
+							currentMoveCount--;
+						}
+						else {
+							currentMove[currentMoveCount] = "n";
+							currentMoveCount++;
+						}
+					}
+					game.highLightMove(currentMove);
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					System.out.println("enter");
+					if(game.highLightMove(currentMove)) moveEntered = true;
+				}
+			}
 
-			  public void keyTyped(KeyEvent e) {}
-			});
+			public void keyTyped(KeyEvent e) {}
+		});
 	}
 
 	public void playTurn(Player currPlayer, int roll) {
