@@ -16,6 +16,8 @@ public class Cell {
 	ImageIcon exit;
 	int x;
 	int y;
+	boolean redHighlight;
+	boolean greenHighlight;
 
 	public Cell(String room, char[] draw, ImageIcon pic) {
 		this.draw = draw;
@@ -112,6 +114,8 @@ public class Cell {
 		this.pic = pic;
 		this.room = room;
 		this.occupied = false;
+		this.redHighlight = false;
+		this.greenHighlight = false;
 	}
 
 	public Boolean getNorthNeighbour() {
@@ -191,5 +195,28 @@ public class Cell {
 	
 	public int getY() {
 		return x;
+	}
+	
+	public boolean isRedHighlight() {
+		return redHighlight;
+	}
+	
+	public boolean isGreenHighlight() {
+		return greenHighlight;
+	}
+	
+	public void setRedHighLight() {
+		redHighlight = true;
+		greenHighlight = false;
+	}
+	
+	public void setGreenHighlight() {
+		greenHighlight = true;
+		redHighlight = false;
+	}
+	
+	public void removeHighlight() {
+		greenHighlight = false;
+		redHighlight = false;
 	}
 }

@@ -751,15 +751,15 @@ public class Board {
 	}
 
 	public void setStoreLocations() {
-		roomStore.put("Conservatory", new Cell[] {board[19][3],board[20][3],board[21][3],board[22][3],board[20][4],board[21][4]});
-		roomStore.put("Ball Room", new Cell[] {board[10][5],board[12][5],board[11][6],board[10][2],board[12][2],board[11][1]});
-		roomStore.put("Kitchen", new Cell[] {board[1][2],board[2][2],board[3][2],board[1][4],board[2][4],board[3][4]});
-		roomStore.put("Billiard Room", new Cell[] {board[19][9],board[20][9],board[21][9],board[22][9],board[20][11],board[21][11]});
-		roomStore.put("Dining Room", new Cell[] {board[1][14],board[3][14],board[5][14],board[1][10],board[2][10],board[3][10]});
-		roomStore.put("None", new Cell[] {board[2][11],board[4][11],board[2][13],board[4][13],board[2][15]});
-		roomStore.put("Library", new Cell[] {board[19][15],board[20][15],board[21][15],board[19][17],board[20][17],board[21][17]});
-		roomStore.put("Hall", new Cell[] {board[11][20],board[12][19],board[13][20],board[11][23],board[12][22],board[13][23]});
-		roomStore.put("Lounge", new Cell[] {board[1][23],board[3][23],board[4][23],board[1][19],board[3][19],board[4][19]});
-		roomStore.put("Study", new Cell[] {board[22][23],board[22][21],board[20][23],board[20][21],board[19][23],board[19][21]});
+		roomStore.put("Conservatory", new Cell[] {board[22][4],board[21][4],board[20][4],board[19][4],board[22][3],board[21][3]});
+		roomStore.put("Ball Room", new Cell[] {board[10][2],board[11][2],board[12][2],board[13][2],board[11][3],board[12][3]});
+		roomStore.put("Kitchen", new Cell[] {board[1][2],board[2][2],board[3][2],board[3][2],board[2][5],board[3][5]});
+		roomStore.put("Billiard Room", new Cell[] {board[22][11],board[21][11],board[20][11],board[19][11],board[22][10],board[21][10]});
+		roomStore.put("Dining Room", new Cell[] {board[1][14],board[3][14],board[5][14],board[1][11],board[2][11],board[3][11]});
+		roomStore.put("None", new Cell[] {board[11][11],board[13][11],board[11][13],board[13][13],board[11][15]});
+		roomStore.put("Library", new Cell[] {board[18][15],board[18][17],board[19][17],board[20][17],board[21][17],board[22][17]});
+		roomStore.put("Hall", new Cell[] {board[10][20],board[12][20],board[10][22],board[11][23],board[12][22],board[13][23]});
+		roomStore.put("Lounge", new Cell[] {board[1][23],board[2][23],board[3][23],board[1][20],board[2][20],board[3][20]});
+		roomStore.put("Study", new Cell[] {board[22][23],board[21][23],board[20][23],board[19][23],board[18][23],board[22][22]});
 	}
 }

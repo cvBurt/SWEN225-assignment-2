@@ -49,7 +49,7 @@ public class Cluedo {
 				Card character = characters.get(i);
 				if(character.getId().equals(playerList.get(player))) {
 					Cell startPos = board.getCell(character.getStartRow(), character.getStartCol());
-					Player toAdd = new Player(player, startPos, playerList.get(player), character.getImg(),i);
+					Player toAdd = new Player(player, startPos, playerList.get(player), character.getImg(), character.getRoomImg(),i);
 					startPos.setPlayer(toAdd);
 					players.add(toAdd);
 					break;
@@ -76,12 +76,14 @@ public class Cluedo {
 				if(allCards.isEmpty()) break;
 			}
 		}
+		
 		display.playGame();
 		for(Player player : players) {
 			display.showHand(player);
 		}
+		//display.playTurn(currentPlayer, 50);
 		
-		//tick();
+		tick();
 	}
 	
 	/**
@@ -91,12 +93,13 @@ public class Cluedo {
 	public void tick() {
 		int playerTurn = 0;
 		while(true) {
+			System.out.println("looped");
 			currentPlayer = players.get(playerTurn);
 			if(!currentPlayer.getStatus()) {
 				if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
 					exitRoom();
 				}	
-				//display.playTurn(currentPlayer,rollDice());
+				display.playTurn(currentPlayer,rollDice());
 				if(!currentPlayer.getLocation().getRoom().equals("Hallway")) {
 					if(display.askToSuggest(currentPlayer)) {
 							if(display.makeSuggestion(currentPlayer)) {
@@ -107,6 +110,7 @@ public class Cluedo {
 							if(display.makeAccusation(currentPlayer)) {
 								break;
 							}
+							enterRoom("None",currentPlayer);
 							display.deathNotice(currentPlayer);
 							currentPlayer.kill();
 					}
@@ -115,7 +119,6 @@ public class Cluedo {
 			playerTurn++;
 			if(playerTurn == players.size()) playerTurn = 0;
 		}
-		
 		if(wonFromAccu) System.out.println(currentPlayer.getName() + " won the game with the accusation: " + winningClaim);
 		else System.out.println(currentPlayer.getName() + " won the game with the suggestion: " + winningClaim);
 	}
@@ -141,12 +144,12 @@ public class Cluedo {
 	 */
 	public void addCharacters() {
 		characters = new ArrayList<Card>();
-		characters.add(new Card("character","Miss Scarlet",7,24, new ImageIcon(getClass().getResource("Scarlet.png")),new ImageIcon(getClass().getResource("MissScarletCard.png"))));
-		characters.add(new Card("character","Colonel Mustard",0,17, new ImageIcon(getClass().getResource("Mustard.png")),new ImageIcon(getClass().getResource("ColMustardCard.png"))));
-		characters.add(new Card("character","Mrs. White",9,0, new ImageIcon(getClass().getResource("White.png")),new ImageIcon(getClass().getResource("MrsWhiteCard.png"))));
-		characters.add(new Card("character","Mr. Green",14,0, new ImageIcon(getClass().getResource("Green.png")),new ImageIcon(getClass().getResource("MrGreenCard.png"))));
-		characters.add(new Card("character","Mrs. Peacock",23,6, new ImageIcon(getClass().getResource("Peacock.png")),new ImageIcon(getClass().getResource("MrsPeacockCard.png"))));
-		characters.add(new Card("character","Prof. Plum",23,19, new ImageIcon(getClass().getResource("Plum.png")),new ImageIcon(getClass().getResource("ProfPlumCard.png"))));
+		characters.add(new Card("character","Miss Scarlet",7,24, new ImageIcon(getClass().getResource("Scarlet.png")),new ImageIcon(getClass().getResource("MissScarletCard.png")), new ImageIcon(getClass().getResource("ScarletRoom.png"))));
+		characters.add(new Card("character","Colonel Mustard",0,17, new ImageIcon(getClass().getResource("Mustard.png")),new ImageIcon(getClass().getResource("ColMustardCard.png")), new ImageIcon(getClass().getResource("MustardRoom.png"))));
+		characters.add(new Card("character","Mrs. White",9,0, new ImageIcon(getClass().getResource("White.png")),new ImageIcon(getClass().getResource("MrsWhiteCard.png")), new ImageIcon(getClass().getResource("WhiteRoom.png"))));
+		characters.add(new Card("character","Mr. Green",14,0, new ImageIcon(getClass().getResource("Green.png")),new ImageIcon(getClass().getResource("MrGreenCard.png")), new ImageIcon(getClass().getResource("GreenRoom.png"))));
+		characters.add(new Card("character","Mrs. Peacock",23,6, new ImageIcon(getClass().getResource("Peacock.png")),new ImageIcon(getClass().getResource("MrsPeacockCard.png")), new ImageIcon(getClass().getResource("PeacockRoom.png"))));
+		characters.add(new Card("character","Prof. Plum",23,19, new ImageIcon(getClass().getResource("Plum.png")),new ImageIcon(getClass().getResource("ProfPlumCard.png")), new ImageIcon(getClass().getResource("PlumRoom.png"))));
 	}
 	
 	/**
@@ -199,6 +202,7 @@ public class Cluedo {
 		while(true) {
 			input = 0;
 			if(input > -1 && input < numExits) {
+				currentPlayer.toggleRoom();
 				exits[input].removePlayer();
 				currentPlayer.getLocation().removePlayer();
 				currentPlayer.setLocation(exits[input]);
@@ -208,6 +212,7 @@ public class Cluedo {
 		for(int i=0; i<numExits; i++) {
 			exits[i].removeExit();
 		}
+		display.updateBoard();
 	}
 	
 	/**
@@ -220,12 +225,16 @@ public class Cluedo {
 		Cell[] store = board.roomStore.get(room);
 		for(int i=0; i<store.length; i++) {
 			if(!store[i].hasPlayer()) {
+				if(playerToEnter.getLocation().getRoom().equals("Hallway")) {
+					playerToEnter.toggleRoom();
+				}
 				store[i].setPlayer(playerToEnter);
 				playerToEnter.getLocation().removePlayer();
 				playerToEnter.setLocation(store[i]);
 				break;
 			}
 		}
+		display.updateBoard();
 	}
 	
 	/**
@@ -233,35 +242,26 @@ public class Cluedo {
 	 * @param sc
 	 * @param roll
 	 */
-	public void validateMove(Scanner sc, int roll) {
-		String[] move;
-		List<String> validMoves = new ArrayList<String>(Arrays.asList("n","e","s","w"));
-		while(true) {
-			if(sc.nextLine() != null) {
-				boolean validMove = true;
-				move = sc.nextLine().split(",");
-				for(int i=0; i <move.length; i++) {
-					String character = move[i];
-					if(!validMoves.contains(character.toLowerCase())) {
-						validMove = false;
-					}
-				}
-				if(validMove) {
-					if(applyMove(move,roll)) {
-						board.draw();
-						break;
-					}
-				}
-				else {
-					for(int i=0; i <move.length; i++) {
-						System.out.print(move[i]);
-					}
-					System.out.print("\n");
-					System.out.println("Please make sure you type only 'n','e','s' or 'w' and that each letter is sepearted by commas");
-				}
-			}
-		}
-	}
+//	public void validateMove(String[] move, int roll) {
+//		List<String> validMoves = new ArrayList<String>(Arrays.asList("n","e","s","w"));
+//		while(true) {
+//				boolean validMove = true;
+//				for(int i=0; i <move.length; i++) {
+//					String character = move[i];
+//					if(!validMoves.contains(character.toLowerCase())) {
+//						validMove = false;
+//					}
+//				}
+//				if(validMove) {
+//					if(applyMove(move,roll)) {
+//						board.draw();
+//						break;
+//					}
+//				}
+//				else {
+//				}
+//		}
+//	}
 	
 	/**
 	 * applies the given move to the current character, checking along the way if it is valid
@@ -271,7 +271,7 @@ public class Cluedo {
 	 * @param roll
 	 * @return with move was successful or not
 	 */
-	public boolean applyMove(String[] move, int roll) {
+	public boolean highLightMove(String[] move) {
 		Cell proposedLoc = null;
 		Cell currentLoc = currentPlayer.getLocation();
 		Cell originLoc = currentPlayer.getLocation();
@@ -279,150 +279,131 @@ public class Cluedo {
 		Set<Cell> visited = new HashSet<Cell>();
 		for(int i=0; i<move.length; i++) {
 			visited.add(currentLoc);
-			if(move[i].equalsIgnoreCase("n")) {
+			if(move[i].equals("n")) {
 				if(currentLoc.getNorthNeighbour()) {
 					proposedLoc = board.getCell(currentLoc.getX(),currentLoc.getY()-1);
 					if(!prevRoundRoom.equals("Hallway") && prevRoundRoom.equals(proposedLoc.getRoom())){
-						System.out.println("You cannot re-enter a room in the same turn\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(visited.contains(proposedLoc)) {
-						System.out.println("Your move " + Arrays.toString(move) + " loops back on itself\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(proposedLoc.hasPlayer()) {
-						System.out.println("Your move tries to enter a cell with another player in it\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(proposedLoc.getSouthNeighbour()) {
 						currentLoc = proposedLoc;
 						if(!currentLoc.getRoom().equals("Hallway")) {
-							enterRoom(currentLoc.getRoom(), currentPlayer);
+							//enterRoom(currentLoc.getRoom(), currentPlayer);
+							highlightGreen(visited);
 							return true;
 						}
 					}
 					else {
-						System.out.println("Your move crashes into a wall\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					
 				}
 			}
-			else if(move[i].equalsIgnoreCase("s")) {
+			else if(move[i].equals("s")) {
 				if(currentLoc.getSouthNeighbour()) {
 					proposedLoc = board.getCell(currentLoc.getX(),currentLoc.getY()+1);
 					if(!prevRoundRoom.equals("Hallway") && prevRoundRoom.equals(proposedLoc.getRoom())){
-						System.out.println("You cannot re-enter a room in the same turn\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(visited.contains(proposedLoc)) {
-						System.out.println("Your move " + Arrays.toString(move) + " loops back on itself\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(proposedLoc.hasPlayer()) {
-						System.out.println("Your move tries to enter a cell with another player in it\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(proposedLoc.getNorthNeighbour()) {
 						currentLoc = proposedLoc;
 						if(!currentLoc.getRoom().equals("Hallway")) {
-							enterRoom(currentLoc.getRoom(), currentPlayer);
+							//enterRoom(currentLoc.getRoom(), currentPlayer);
+							highlightGreen(visited);
 							return true;
 						}
 					}
 					else {
-						System.out.println("Your move crashes into a wall\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					
 				}
 			}
-			else if(move[i].equalsIgnoreCase("w")) {
+			else if(move[i].equals("w")) {
 				if(currentLoc.getWestNeighbour()) {
 					proposedLoc = board.getCell(currentLoc.getX()-1,currentLoc.getY());
 					if(!prevRoundRoom.equals("Hallway") && prevRoundRoom.equals(proposedLoc.getRoom())){
-						System.out.println("You cannot re-enter a room in the same turn\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(visited.contains(proposedLoc)) {
-						System.out.println("Your move " + Arrays.toString(move) + " loops back on itself\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(proposedLoc.hasPlayer()) {
-						System.out.println("Your move tries to enter a cell with another player in it\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(proposedLoc.getEastNeighbour()) {
 						currentLoc = proposedLoc;
 						if(!currentLoc.getRoom().equals("Hallway")) {
-							enterRoom(currentLoc.getRoom(), currentPlayer);
+							//enterRoom(currentLoc.getRoom(), currentPlayer);
+							highlightGreen(visited);
 							return true;
 						}
 					}
 					else {
-						System.out.println("Your move crashes into a wall\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					
 				}
 			}
-			else if(move[i].equalsIgnoreCase("e")) {
+			else if(move[i].equals("e")) {
 				if(currentLoc.getEastNeighbour()) {
 					proposedLoc = board.getCell(currentLoc.getX()+1,currentLoc.getY());
 					if(!prevRoundRoom.equals("Hallway") && prevRoundRoom.equals(proposedLoc.getRoom())){
-						System.out.println("You cannot re-enter a room in the same turn\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(visited.contains(proposedLoc)) {
-						System.out.println("Your move " + Arrays.toString(move) + " loops back on itself\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(proposedLoc.hasPlayer()) {
-						System.out.println("Your move tries to enter a cell with another player in it\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
 					if(proposedLoc.getWestNeighbour()) {
 						currentLoc = proposedLoc;
 						if(!currentLoc.getRoom().equals("Hallway")) {
-							enterRoom(currentLoc.getRoom(),currentPlayer);
+							//enterRoom(currentLoc.getRoom(),currentPlayer);
+							highlightGreen(visited);
 							return true;
 						}
 					}
 					else {
-						System.out.println("Your move crashes into a wall\n"
-								+ "(Please enter a new move)");
-						return false;
+						break;
 					}
-					
 				}
 			}
+			else {
+				break;
+			}
 		}
-		if(move.length == roll) {
-			currentPlayer.setLocation(currentLoc);
-			//currentLoc.setPlayer(currentPlayer.getPlayerInitials());
-			originLoc.removePlayer();
-			currentPlayer.setPrevRoundRoom(currentLoc.getRoom());
-			return true;
-		}
-		System.out.println("You did not move right amount of spaces\n"
-				+ "Please enter a new move:");
+		highlightRed(visited);
 		return false;
 	}
+	
+	public void highlightRed(Set<Cell> highlight) {
+		for(Cell cell : highlight) {
+			cell.setRedHighLight();
+		}
+		display.setHighlighted(highlight);
+	}
+	
+	public void highlightGreen(Set<Cell> highlight) {
+		for(Cell cell : highlight) {
+			cell.setGreenHighlight();
+		}
+		display.setHighlighted(highlight);
+	}
+	
 	
 	/**
 	 * checks whether the given suggestion is correct or not, making sure that the suggestion is done in
@@ -431,11 +412,13 @@ public class Cluedo {
 	 * @return
 	 */
 	public boolean checkSuggestion(String[] suggestion) {
-		for(Player player : this.players) {
-			if(player.getName().equalsIgnoreCase(suggestion[0])) {
-				for(Card room : rooms) {
-					if(room.getId().equalsIgnoreCase(suggestion[2]))
-					enterRoom(room.getId(),player);
+		if(!suggestion[0].equalsIgnoreCase(currentPlayer.getcharacterName())) {
+			for(Player player : this.players) {
+				if(player.getcharacterName().equalsIgnoreCase(suggestion[0])) {
+					for(Card room : rooms) {
+						if(room.getId().equalsIgnoreCase(suggestion[2]))
+						enterRoom(room.getId(),player);
+					}
 				}
 			}
 		}

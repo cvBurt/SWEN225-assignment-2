@@ -12,17 +12,25 @@ public class GUI extends JFrame {
 	private Map<String,String> playerList = new HashMap<String,String>();
 	private Cluedo game;
 	private Board boardObj;
-	private JLabel botDisp;
+	private JLabel botlb1;
+	private JLabel botlb2;
+	private JLabel botlb3;
+	private JLabel[][] drawBoard;
 	private JFrame gameFrame;
 	private String accusedCharacter = "";
 	private String suggestedWeapon ="";
 	private String suggestedRoom = "";
 	private int selectPlayerCount;
-	
+	private String[] currentMove;
+	private int currentMoveCount;
+	private boolean moveEntered;
+	private Set<Cell> highlightedCell;
+
 	
 	public GUI(Cluedo game, Board board){
 		this.game = game;
 		this.boardObj = board;
+		this.drawBoard = new JLabel[24][25];
 		mainMenu();
 	}
 	
@@ -242,13 +250,15 @@ public class GUI extends JFrame {
 				else {
 					cellPic = board[j][i].getPic();
 				}
-				label = new JLabel(cellPic);
+				label = new JLabel();
+				label.setIcon(cellPic);
 				if (board[j][i].occupied) {
-				label.setToolTipText(board[j][i].getPlayer().dispName());
+					label.setToolTipText(board[j][i].getPlayer().dispName());
 				}
 				Border border = BorderFactory.createLineBorder(boardDisplay.getBackground(), 1);
 				label.setBorder(border);
 				boardDisplay.add(label);
+				drawBoard[j][i] = label;
 			}
 		}
 		boardDisplay.setBorder(black);
@@ -273,7 +283,24 @@ public class GUI extends JFrame {
 		rightSide.setBackground(back);
 		gameFrame.add(rightSide, BorderLayout.LINE_END);
 		
-		botDisp = new JLabel();
+		JPanel botDisp = new JPanel();
+		botDisp.setLayout(new GridLayout(3,1));
+		
+		botlb1 = new JLabel();
+		botlb1.setFont(new Font(botlb1.getFont().getName(),botlb1.getFont().getStyle(), 18));
+		botlb1.setHorizontalAlignment(SwingConstants.CENTER);
+		botDisp.add(botlb1);
+		
+		botlb2 = new JLabel();
+		botlb2.setFont(new Font(botlb2.getFont().getName(),botlb2.getFont().getStyle(), 18));
+		botlb2.setHorizontalAlignment(SwingConstants.CENTER);
+		botDisp.add(botlb2);
+		
+		botlb3 = new JLabel();
+		botlb3.setFont(new Font(botlb3.getFont().getName(),botlb3.getFont().getStyle(), 18));
+		botlb3.setHorizontalAlignment(SwingConstants.CENTER);
+		botDisp.add(botlb3);
+		
 		botDisp.setPreferredSize(new Dimension(gameFrame.getWidth(),100));
 		gameFrame.add(botDisp, BorderLayout.PAGE_END);
 		
@@ -299,42 +326,121 @@ public class GUI extends JFrame {
 	}
 	
 	public void playTurn(Player currPlayer, int roll) {
-		botDisp = new JLabel(currPlayer.dispName()+" rolled "+roll+"!!\n"
-				+ "Use the arrow keys or 'w','a','s','d' keys to choose your move\n"
-				+ "and press enter when a valid move is choosen");
-		botDisp.setPreferredSize(new Dimension(gameFrame.getWidth(),100));
-		gameFrame.add(botDisp, BorderLayout.PAGE_END);
+		
+		botlb1.setText(currPlayer.dispName()+" rolled a "+roll+"!!");
+		botlb2.setText("Use the arrow keys or 'w''a''s''d' keys to choose your move\n");
+		botlb3.setText("and press enter when a valid move is choosen");
+		
+		currentMove = new String[roll];
+		for(int i=0; i <roll;i++) {
+			currentMove[i] = "";
+		}
+		currentMoveCount = 0;
+		moveEntered = false;
 		
 		gameFrame.addKeyListener(new KeyListener() {
-		public void keyPressed(KeyEvent e) {
-		  }
+		public void keyPressed(KeyEvent e) {}
 
 		  public void keyReleased(KeyEvent e) {
-		    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_A) {
-		    	
+		    if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
+		    	System.out.println("east");
+		    	if(currentMove[currentMoveCount-1].equals("w")) {
+		    		currentMove[currentMoveCount-1] = "";
+		    		currentMoveCount--;
+		    	}
+		    	else {
+		    		currentMove[currentMoveCount] = "e";
+		    		currentMoveCount++;
+		    	}
 		    }
-		    else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_D ) {
-		    	
+		    else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
+		    	System.out.println("west");
+		    	if(currentMove[currentMoveCount-1].equals("e")) {
+		    		currentMove[currentMoveCount-1] = "";
+		    		currentMoveCount--;
+		    	}
+		    	else {
+		    		currentMove[currentMoveCount] = "w";
+		    		currentMoveCount++;
+		    	}
 		    }
 		    else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
-		    	
+		    	System.out.println("south");
+		    	if(currentMove[currentMoveCount-1].equals("n")) {
+		    		currentMove[currentMoveCount-1] = "";
+		    		currentMoveCount--;
+		    	}
+		    	else {
+		    		currentMove[currentMoveCount] = "s";
+		    		currentMoveCount++;
+		    	}
 		    }
 		    else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
-		    	
+		    	System.out.println("north");
+		    	if(currentMove[currentMoveCount-1].equals("n")) {
+		    		currentMove[currentMoveCount-1] = "";
+		    		currentMoveCount--;
+		    	}
+		    	else {
+		    		currentMove[currentMoveCount] = "n";
+		    		currentMoveCount++;
+		    	}
 		    }
-		    else if (e.getKeyCode() == KeyEvent.VK_ENTER) {}
-
+		    else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+		    	System.out.println("enter");
+		    	if(game.highLightMove(currentMove)) moveEntered = true;
+		    }
 		  }
 
-		  public void keyTyped(KeyEvent e) {
-		  }
+		  public void keyTyped(KeyEvent e) {}
 		});
+		
+//		while(!moveEntered) {
+//			
+//			game.highLightMove(currentMove);
+//		}
+//		
 		
 		
 	}
 	
+	
+	
+	public void updateBoard() {
+		Cell[][] board = boardObj.getBoardArray();
+		ImageIcon cellPic;
+		JLabel label;
+		Border redBorder = BorderFactory.createLineBorder(Color.RED, 1);
+		Border greenBorder = BorderFactory.createLineBorder(Color.GREEN, 1);
+		for (int i = 0; i < 25; i++) {
+			for (int j = 0; j < 24; j++) {
+				label = drawBoard[j][i];
+				if (board[j][i].occupied) {
+					cellPic = board[j][i].getPlayer().getImage();
+				}
+				else {
+					cellPic = board[j][i].getPic();
+				}
+				label.setIcon(cellPic);
+				if (board[j][i].occupied) {
+					label.setToolTipText(board[j][i].getPlayer().dispName());
+				}
+				if(board[j][i].isGreenHighlight()) {
+					label.setBorder(greenBorder);
+				}
+				else if(board[j][i].isRedHighlight()) {
+					label.setBorder(redBorder);
+				}
+				
+				drawBoard[j][i] = label;
+			}
+		}
+	}
+	
 	public void deathNotice(Player player) {
-		
+		botlb1.setText("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+		botlb2.setText(player.dispName()+" was removed from the game due to a false accusation");
+		botlb3.setText("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 	}
 	
 	/**
@@ -542,6 +648,11 @@ public class GUI extends JFrame {
 		accuse[2] = suggestedRoom;
 		
 		return game.checkAccusation(accuse);
+	}
+
+	
+	public void setHighlighted(Set<Cell> highlight) {
+		this.highlightedCell = highlight;
 	}
 
 }

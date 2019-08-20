@@ -10,9 +10,11 @@ public class Player implements Comparable{
 	private boolean dead;
 	private String prevRoundRoom;
 	private ImageIcon image;
+	private ImageIcon roomImage;
 	private int id;
+	private boolean inRoom;
 
-	public Player (String player, Cell location, String character, ImageIcon image, int id) {
+	public Player (String player, Cell location, String character, ImageIcon image, ImageIcon roomImage, int id) {
 		this.name = player;
 		this.characterName = character;
 		this.hand = new ArrayList<Card>();
@@ -20,7 +22,9 @@ public class Player implements Comparable{
 		this.location = location;
 		this.prevRoundRoom = location.getRoom();
 		this.image = image;
+		this.roomImage = roomImage;
 		this.id = id;
+		this.inRoom = false;
 	}
 
 
@@ -102,6 +106,9 @@ public class Player implements Comparable{
 	 * @return the image of this player
 	 */
 	public ImageIcon getImage() {
+		if(inRoom) {
+			return roomImage;
+		}
 		return image;
 	}
 
@@ -136,5 +143,8 @@ public class Player implements Comparable{
 		return 0;
 	}
 	
+	public void toggleRoom() {
+		inRoom = !inRoom;
+	}
 	
 }

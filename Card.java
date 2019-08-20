@@ -7,6 +7,7 @@ public class Card {
 	private int startCol;
 	private ImageIcon img;
 	private ImageIcon card;
+	private ImageIcon roomImg;
 	
 	public Card(String type, String id, ImageIcon card) {
 		this.type = type;
@@ -14,13 +15,14 @@ public class Card {
 		this.card = card;
 	}
 	
-	public Card(String type, String id, int startRow, int startCol, ImageIcon img, ImageIcon card) {
+	public Card(String type, String id, int startRow, int startCol, ImageIcon img, ImageIcon card, ImageIcon roomImg) {
 		this.type = type;
 		this.id = id;
 		this.startRow = startRow;
 		this.startCol = startCol;
 		this.img = img;
 		this.card = card;
+		this.roomImg = roomImg;
 	}
 
 	public String getType() {
@@ -44,6 +46,10 @@ public class Card {
 	}
 	public ImageIcon getCardImg() {
 		return card;
+	}
+	
+	public ImageIcon getRoomImg() {
+		return roomImg;
 	}
 }
 
